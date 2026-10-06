@@ -1,7 +1,6 @@
 /*
- * css/cadastro.css (Pessoa B) - estilos específicos da tela 11.3 (cadastro.html) e do
- * modal 11.4 (status.js). Topbar, painel, botões, badges, campos e selects já vêm de
- * css/estilo.css (Pessoa A); aqui fica só o que é próprio do formulário e do modal.
+ * css/cadastro.css (Pessoa B) - estilos específicos do formulário da tela 11.3.
+ * A base vem de css/estilo.css; alerta, erro de campo e modal ficam em css/status.css.
  */
 
 .cabecalho--cadastro {
@@ -20,25 +19,6 @@
 .required-hint {
   font-size: 13px;
   color: var(--muted);
-}
-
-/* E1 / E4 - aviso de campos obrigatórios não preenchidos */
-.form-alert {
-  display: flex;
-  gap: 12px;
-  align-items: flex-start;
-  background: var(--danger-soft);
-  border: 1px solid var(--danger);
-  color: var(--danger);
-  border-radius: var(--radius);
-  padding: 14px 16px;
-  margin: 20px 28px 0;
-}
-
-.form-alert strong {
-  display: block;
-  margin-bottom: 2px;
-  color: var(--text);
 }
 
 /* Seções do formulário (Dados do fornecedor / Telefone / Endereço) */
@@ -80,104 +60,9 @@
   color: var(--muted);
 }
 
-.campo.has-error input,
-.campo.has-error select,
-.campo.has-error textarea {
-  border-color: var(--danger);
-  background: var(--danger-soft);
-}
-
-.field-error {
-  font-size: 12px;
-  color: var(--danger);
-}
-
-.char-counter {
-  font-size: 12px;
-  color: var(--muted);
-}
-
 .form-actions {
   display: flex;
   justify-content: flex-end;
   gap: 12px;
   padding: 20px 28px;
-}
-
-/* Modal 11.4 - inativação/ativação */
-.modal-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(27, 36, 48, 0.55);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 100;
-}
-
-.modal-card {
-  background: var(--surface);
-  border-radius: 10px;
-  width: 100%;
-  max-width: 560px;
-  max-height: 90vh;
-  overflow-y: auto;
-  box-shadow: 0 20px 45px rgba(15, 23, 42, 0.25);
-}
-
-.modal-header {
-  display: flex;
-  gap: 14px;
-  align-items: flex-start;
-  padding: 24px 24px 0;
-}
-
-.modal-icon {
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-}
-
-.modal-icon.icon-inativar {
-  background: var(--danger-soft);
-  color: var(--danger);
-}
-
-.modal-icon.icon-ativar {
-  background: var(--success-soft);
-  color: var(--success);
-}
-
-.modal-title {
-  margin: 0;
-  font-size: 18px;
-  font-weight: 700;
-}
-
-.modal-subtitle {
-  margin: 4px 0 0;
-  font-size: 13px;
-  color: var(--muted);
-}
-
-.modal-body {
-  padding: 20px 24px;
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-
-.modal-body .form-alert {
-  margin: 0;
-}
-
-.modal-actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 12px;
-  padding: 16px 24px 24px;
 }
