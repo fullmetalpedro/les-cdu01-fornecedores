@@ -1,0 +1,68 @@
+/*
+ * css/cadastro.css (Pessoa B) - estilos específicos do formulário da tela 11.3.
+ * A base vem de css/estilo.css; alerta, erro de campo e modal ficam em css/status.css.
+ */
+
+.cabecalho--cadastro {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+}
+
+.cabecalho--cadastro h1 {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 26px;
+}
+
+.required-hint {
+  font-size: 13px;
+  color: var(--muted);
+}
+
+/* Seções do formulário (Dados do fornecedor / Telefone / Endereço) */
+.secao {
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  gap: 24px;
+  padding: 28px;
+  border-bottom: 1px solid var(--border);
+}
+
+.secao__desc {
+  font-size: 13px;
+  color: var(--muted);
+  margin: 4px 0 0;
+}
+
+.secao__grade {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px 24px;
+}
+
+.campo--larga {
+  grid-column: span 2;
+}
+
+.campo-bloqueado {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.campo-bloqueado input {
+  flex: 1;
+}
+
+.campo-bloqueado .icone {
+  color: var(--muted);
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  padding: 20px 28px;
+}

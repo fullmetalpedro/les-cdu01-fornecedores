@@ -10,7 +10,8 @@ src/
 ├── cadastro.html            (B) Tela 11.3 – inclusão, alteração e visualização
 ├── css/
 │   ├── estilo.css           (A) Base visual: cores, fonte, topbar, botões, campos, badge, tabela
-│   └── cadastro.css         (B) Estilos específicos do formulário e do modal (opcional)
+│   ├── cadastro.css         (B) Estilos específicos do formulário da tela 11.3
+│   └── status.css           (B) Estilos do modal 11.4 (carregado por index.html e cadastro.html)
 └── js/
     ├── mock-fornecedores.js (A) Fornecedores fictícios (substitui o banco nesta etapa)
     ├── dominios.js          (B) Tipos de telefone e de logradouro, estados, países, categorias (RNF0013)
@@ -64,6 +65,8 @@ const dominios = {
   categoriasAtivacao: [...]
 };
 ```
+
+Cada item de domínio tem `codigo` e `nome` (estados usam `sigla` e `nome`). **O fornecedor guarda sempre o código** (`"COMERCIAL"`, `"RUA"`, `"BR"`, `"SP"`), e o combobox exibe o nome. Assim o valor já é a chave da tabela de domínio no back-end.
 
 Os documentos não definem os valores das categorias. Use valores de exemplo e registre isso em [ambiguidades.md](ambiguidades.md).
 
