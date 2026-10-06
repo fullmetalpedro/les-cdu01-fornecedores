@@ -73,6 +73,12 @@ function abrirModalStatus(fornecedor, operacao, aoConcluir) {
     cboCategoria.appendChild(option);
   });
 
+  // Tabela 11.4 - Confirmar exige FORNECEDOR_INATIVAR ou FORNECEDOR_ATIVAR.
+  const btnConfirmar = overlay.querySelector("#btnConfirmarStatus");
+  btnConfirmar.disabled = !usuarioLogado.permissoes.includes(
+    isInativar ? "FORNECEDOR_INATIVAR" : "FORNECEDOR_ATIVAR"
+  );
+
   const txtJustificativa = overlay.querySelector("#txtJustificativa");
   const alertBox = overlay.querySelector("#modalStatusAlert");
   const alertText = overlay.querySelector("#modalStatusAlertText");
@@ -120,7 +126,7 @@ function abrirModalStatus(fornecedor, operacao, aoConcluir) {
     fecharModal(); // A4.2/A5.2 opção Cancelar - volta a P1.2 (fecha o modal sobre a busca)
   });
 
-  overlay.querySelector("#btnConfirmarStatus").addEventListener("click", function () {
+  btnConfirmar.addEventListener("click", function () {
     if (!validar()) return; // E4
 
     // A4.4/A5.4 - altera o status, persiste categoria/justificativa (back-end, fora do escopo).

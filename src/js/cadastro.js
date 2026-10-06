@@ -130,6 +130,10 @@
       }
       aplicarSomenteLeitura();
     }
+
+    // Tabela 11.3 - Salvar exige FORNECEDOR_INCLUIR (inclusão) ou FORNECEDOR_ALTERAR (alteração).
+    const permissaoSalvar = modo === "novo" ? "FORNECEDOR_INCLUIR" : "FORNECEDOR_ALTERAR";
+    btnSalvar.disabled = !usuarioLogado.permissoes.includes(permissaoSalvar);
   }
 
   // Ambiguidade #3 (docs/ambiguidades.md): CNPJ com máscara 00.000.000/0000-00.
