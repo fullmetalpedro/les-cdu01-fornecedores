@@ -15,6 +15,31 @@ Esta é a **1ª etapa do trabalho final**: o front-end em HTML das telas do caso
    - **Pessoa A:** Busca e Resultado (11.1 e 11.2) → [prompts/pessoa-a-busca-resultado.md](prompts/pessoa-a-busca-resultado.md)
    - **Pessoa B:** Cadastro e Inativação/Ativação (11.3 e 11.4) → [prompts/pessoa-b-cadastro-status.md](prompts/pessoa-b-cadastro-status.md)
 
+## Como rodar
+
+```bash
+python -m http.server 8770 -d src
+```
+
+Abra http://localhost:8770/index.html.
+
+## Testes automatizados (Playwright)
+
+Os testes em `tests/` validam as quatro telas contra a especificação:
+- tamanhos e obrigatoriedade dos campos;
+- regras de habilitação dos botões e permissões de acesso;
+- fluxos E1, E3 e E4;
+- navegação entre as telas;
+- console sem erros e ausência de emojis (só ícones Lucide).
+
+```bash
+npm install
+npx playwright install chromium
+npm test
+```
+
+Para usar o navegador já instalado em vez de baixar o Chromium, defina `PW_CHANNEL`, por exemplo `PW_CHANNEL=msedge npm test`. O relatório HTML abre com `npm run test:report`. Os testes também rodam no GitHub Actions a cada PR.
+
 ## Estrutura do repositório
 
 ```
@@ -36,6 +61,7 @@ design/
 └── fornecedores.pen                    Arquivo-fonte do design (pencil.dev)
 apresentacao/                           Apresentação com animações CSS (← → navega, R repete)
 src/                                    Código da implementação (criado pelas duas pessoas)
+tests/                                  Testes end-to-end com Playwright
 ```
 
 ## Requisitos cobertos
