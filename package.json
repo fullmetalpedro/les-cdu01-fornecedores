@@ -1,0 +1,13 @@
+{
+  "name": "les-cdu01-fornecedores",
+  "private": true,
+  "description": "CDU01 Manter Cadastro de Fornecedores – testes end-to-end das telas",
+  "scripts": {
+    "test": "playwright test",
+    "test:ui": "playwright test --ui",
+    "test:report": "playwright show-report"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.49.0"
+  }
+}
