@@ -9,3 +9,5 @@ As regras da atividade pedem que ambiguidades não sejam resolvidas por suposiç
 | 3 | 11.1 / 11.3 | O CNPJ é "Alfanumérico 18" (com máscara?) e o CEP é "Numérico 8" (sem hífen?). | CNPJ com máscara `00.000.000/0000-00` e CEP com 8 dígitos sem hífen | Aberta |
 | 4 | 11.4 / RN0084 / RN0085 | Os documentos não definem os nomes das categorias de inativação e de ativação. | Valores de exemplo em `dominios.js` | Aberta |
 | 5 | 11.3 / RN0081 | O número do telefone é "Numérico 9". Telefones fixos têm 8 dígitos: os dois formatos são aceitos? | Aceitar 8 ou 9 dígitos | Aberta |
+| 6 | 11.1 / P1.1 | A especificação diz "filtra pelo código/razão social/... informado", mas não define se a comparação é exata ou parcial. | Busca **parcial** ("contém"), sem diferenciar maiúsculas/acentos; Estado e Status por igualdade | Aberta |
+| 7 | P1.2 / P8.4 / A1.2 | "Volta a P1.2" não esclarece se os parâmetros da busca anterior são mantidos ou se a busca é refeita automaticamente. | Parâmetros anteriores são **reapresentados**; o usuário clica em Buscar (Novo fica desabilitado até isso) | Aberta |

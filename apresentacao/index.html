@@ -6,6 +6,7 @@
 <title>Guia de Fornecedores</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<script src="https://unpkg.com/lucide@0.469.0/dist/umd/lucide.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
 :root{
@@ -113,6 +114,11 @@ html,body{margin:0;height:100%;background:var(--bg);font-family:Inter,system-ui,
 .dark #hud .count{background:rgba(255,255,255,.12);color:#DCE6F2}
 
 /* ---------- keyframes ---------- */
+.ic{width:20px;height:20px;stroke-width:2.2;flex:none;vertical-align:-4px}
+.act .ic{color:var(--primary)} .ic--bad{color:var(--bad)!important} .ic--ok{color:var(--ok)!important}
+#hud button{display:inline-flex;align-items:center;gap:6px} #hud .ic{width:16px;height:16px;vertical-align:0}
+.back .ic{color:var(--primary);width:24px;height:24px}
+.chip{display:inline-flex;align-items:center;gap:6px} .chip .ic{width:16px;height:16px;vertical-align:0}
 @keyframes fadeIn{from{opacity:0}to{opacity:1}}
 @keyframes fadeOut{to{opacity:0}}
 @keyframes stepOn{from{opacity:.28}to{opacity:1}}
@@ -133,9 +139,9 @@ html,body{margin:0;height:100%;background:var(--bg);font-family:Inter,system-ui,
   <div id="slides"></div>
   <div id="hud">
     <div class="btns">
-      <button id="prev" title="Anterior (←)">← Anterior</button>
-      <button id="replay" title="Repetir animação (R)">↻ Repetir</button>
-      <button id="next" title="Próximo (→ ou espaço)">Próximo →</button>
+      <button id="prev" title="Anterior (←)"><i data-lucide="arrow-left" class="ic"></i> Anterior</button>
+      <button id="replay" title="Repetir animação (R)"><i data-lucide="rotate-ccw" class="ic"></i> Repetir</button>
+      <button id="next" title="Próximo (→ ou espaço)">Próximo <i data-lucide="arrow-right" class="ic"></i></button>
     </div>
     <span class="count" id="count"></span>
   </div>
@@ -301,11 +307,11 @@ const flow = `<section class="slide"><div class="flow">
     <div class="node anim" style="animation-delay:1.2s"><small>Tela 11.2</small><strong>Resultado</strong><p>Selecione um fornecedor na tabela</p></div>
     <div class="arrow anim" style="animation-delay:1.7s"></div>
     <div class="acts">
-      <div class="act anim" style="animation-delay:2.0s">➕ Novo <em>após a busca</em></div>
-      <div class="act anim" style="animation-delay:2.2s">👁 Visualizar <em>com seleção</em></div>
-      <div class="act anim" style="animation-delay:2.4s">✏️ Alterar <em>com seleção</em></div>
-      <div class="act anim" style="animation-delay:2.6s">⛔ Inativar <em>se ATIVO</em></div>
-      <div class="act anim" style="animation-delay:2.8s">✅ Ativar <em>se INATIVO</em></div>
+      <div class="act anim" style="animation-delay:2.0s"><i data-lucide="plus" class="ic"></i> Novo <em>após a busca</em></div>
+      <div class="act anim" style="animation-delay:2.2s"><i data-lucide="eye" class="ic"></i> Visualizar <em>com seleção</em></div>
+      <div class="act anim" style="animation-delay:2.4s"><i data-lucide="pencil" class="ic"></i> Alterar <em>com seleção</em></div>
+      <div class="act anim" style="animation-delay:2.6s"><i data-lucide="ban" class="ic ic--bad"></i> Inativar <em>se ATIVO</em></div>
+      <div class="act anim" style="animation-delay:2.8s"><i data-lucide="circle-check" class="ic ic--ok"></i> Ativar <em>se INATIVO</em></div>
     </div>
     <div class="arrow anim" style="animation-delay:3.2s"></div>
     <div class="targets">
@@ -313,7 +319,7 @@ const flow = `<section class="slide"><div class="flow">
       <div class="node anim" style="animation-delay:3.8s"><small>Tela 11.4</small><strong>Inativação / Ativação</strong><p>Categoria + justificativa</p></div>
     </div>
   </div>
-  <div class="back anim" style="animation-delay:4.4s">↩ Salvar, Confirmar ou Cancelar <b>voltam à busca (P1.2)</b></div>
+  <div class="back anim" style="animation-delay:4.4s"><i data-lucide="undo-2" class="ic"></i> Salvar, Confirmar ou Cancelar <b>voltam à busca (P1.2)</b></div>
 </div></section>`;
 
 const rules = `<section class="slide"><div class="rules">
@@ -335,11 +341,12 @@ const closing = `<section class="slide dark"><div class="cover" style="grid-temp
   <div><div class="kicker rise anim">Próximas etapas</div>
   <h1 class="rise anim" style="animation-delay:.2s">Front-end pronto para evoluir</h1>
   <p class="rise anim" style="animation-delay:.4s">As telas desta etapa são a base do trabalho final: implementação com banco de dados, aplicação dos design patterns da disciplina e diagramas de classes e de sequência do CDU01.</p>
-  <div class="meta rise anim" style="animation-delay:.6s"><span class="chip">← → navegar</span><span class="chip">R repetir animação</span><span class="chip">F tela cheia</span></div></div></div></section>`;
+  <div class="meta rise anim" style="animation-delay:.6s"><span class="chip"><i data-lucide="arrow-left" class="ic"></i><i data-lucide="arrow-right" class="ic"></i> navegar</span><span class="chip"><i data-lucide="rotate-ccw" class="ic"></i> R repetir animação</span><span class="chip"><i data-lucide="maximize" class="ic"></i> F tela cheia</span></div></div></div></section>`;
 
 slidesEl.insertAdjacentHTML('beforeend', cover + flow);
 demos.forEach(d=>slidesEl.appendChild(buildDemo(d)));
 slidesEl.insertAdjacentHTML('beforeend', rules + closing);
+if (window.lucide) lucide.createIcons();
 
 const slides=[...slidesEl.children]; let cur=0;
 const stage=document.getElementById('stage');

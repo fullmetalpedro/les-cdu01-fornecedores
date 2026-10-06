@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fornecedores – E-commerce de Livros</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/estilo.css">
+  <link rel="stylesheet" href="css/status.css">
+</head>
+<body>
+  <!-- P3: identificação do usuário autenticado em todas as telas do cadastro -->
+  <header class="topbar">
+    <div class="topbar__marca">
+      <i data-lucide="book-open" class="icone topbar__logo" aria-hidden="true"></i>
+      <strong>E-commerce de Livros</strong>
+      <span class="topbar__area">· Administração · Fornecedores</span>
+    </div>
+    <div class="topbar__usuario" id="usuarioAutenticado">
+      <div class="topbar__usuario-info">
+        <span id="lblNomeUsuario" class="topbar__nome"></span>
+        <span id="lblPerfilUsuario" class="topbar__perfil"></span>
+      </div>
+      <span id="lblIniciaisUsuario" class="topbar__avatar" aria-hidden="true"></span>
+    </div>
+  </header>
+
+  <main class="conteudo">
+    <div class="cabecalho">
+      <h1>Fornecedores</h1>
+      <p>Pesquise para verificar se o fornecedor já possui cadastro antes de incluir um novo.</p>
+    </div>
+
+    <!-- Tela 11.1 – Busca de fornecedores (P1.1 / RF0085) -->
+    <form id="frmBusca" class="painel busca" novalidate>
+      <h2 class="painel__titulo">Parâmetros de busca</h2>
+      <div class="linha">
+        <div class="campo campo--codigo">
+          <label for="txtCodigo">Código</label>
+          <input type="text" id="txtCodigo" name="codigo" maxlength="10" autocomplete="off">
+        </div>
+        <div class="campo campo--cresce">
+          <label for="txtRazaoSocial">Razão Social</label>
+          <input type="text" id="txtRazaoSocial" name="razaoSocial" maxlength="100" autocomplete="off">
+        </div>
+        <div class="campo campo--fantasia">
+          <label for="txtNomeFantasia">Nome Fantasia</label>
+          <input type="text" id="txtNomeFantasia" name="nomeFantasia" maxlength="60" autocomplete="off">
+        </div>
+        <div class="campo campo--cnpj">
+          <label for="txtCnpj">CNPJ</label>
+          <input type="text" id="txtCnpj" name="cnpj" maxlength="18" inputmode="numeric" placeholder="00.000.000/0000-00" autocomplete="off">
+        </div>
+      </div>
+      <div class="linha linha--base">
+        <div class="campo campo--cresce">
+          <label for="txtCidade">Cidade</label>
+          <input type="text" id="txtCidade" name="endereco.cidade" maxlength="60" autocomplete="off">
+        </div>
+        <div class="campo campo--combo">
+          <label for="cboEstado">Estado</label>
+          <select id="cboEstado" name="endereco.estado">
+            <option value="">Selecione</option>
+          </select>
+        </div>
+        <div class="campo campo--combo">
+          <label for="cboStatus">Status <span class="obrigatorio" title="Obrigatório">*</span></label>
+          <select id="cboStatus" name="status" required>
+            <option value="ATIVO">Ativo</option>
+            <option value="INATIVO">Inativo</option>
+            <option value="TODOS" selected>Todos</option>
+          </select>
+        </div>
+        <!-- P1.2 · Permissão de acesso: FORNECEDOR_CONSULTAR -->
+        <button type="submit" id="btnBuscar" class="botao botao--primario" data-permissao="FORNECEDOR_CONSULTAR">
+          <i data-lucide="search" class="icone" aria-hidden="true"></i> Buscar
+        </button>
+      </div>
+    </form>
+
+    <!-- Tela 11.2 – Resultado da busca (P1.3 / P2) -->
+    <section class="painel resultado" aria-labelledby="lblContagem">
+      <div class="resultado__barra">
+        <h2 id="lblContagem" class="resultado__contagem">Resultado da busca</h2>
+        <div class="resultado__acoes" role="toolbar" aria-label="Ações do fornecedor">
+          <button type="button" id="btnNovo" class="botao" data-permissao="FORNECEDOR_INCLUIR" disabled><i data-lucide="plus" class="icone" aria-hidden="true"></i> Novo</button>
+          <button type="button" id="btnVisualizar" class="botao" data-permissao="FORNECEDOR_CONSULTAR" disabled><i data-lucide="eye" class="icone" aria-hidden="true"></i> Visualizar</button>
+          <button type="button" id="btnAlterar" class="botao" data-permissao="FORNECEDOR_ALTERAR" disabled><i data-lucide="pencil" class="icone" aria-hidden="true"></i> Alterar</button>
+          <button type="button" id="btnInativar" class="botao botao--perigo" data-permissao="FORNECEDOR_INATIVAR" disabled><i data-lucide="ban" class="icone" aria-hidden="true"></i> Inativar</button>
+          <button type="button" id="btnAtivar" class="botao botao--sucesso" data-permissao="FORNECEDOR_ATIVAR" disabled><i data-lucide="circle-check" class="icone" aria-hidden="true"></i> Ativar</button>
+        </div>
+      </div>
+
+      <div class="tabela-rolagem">
+      <table id="tblResultado" class="tabela" hidden>
+        <thead>
+          <tr>
+            <th class="col-selecao"><span class="sr-only">Selecionar</span></th>
+            <th>Código</th>
+            <th>Razão Social</th>
+            <th>Nome Fantasia</th>
+            <th>CNPJ</th>
+            <th>Cidade</th>
+            <th>Estado</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+      </div>
+
+      <!-- E3: nenhum fornecedor encontrado, exibido na própria tela de pesquisa -->
+      <div id="msgNenhumEncontrado" class="mensagem" role="status" hidden>
+        <i data-lucide="search-x" class="icone icone--grande" aria-hidden="true"></i>
+        <strong>Não foram encontrados fornecedores.</strong>
+      </div>
+    </section>
+  </main>
+
+  <script src="https://unpkg.com/lucide@0.469.0/dist/umd/lucide.min.js"></script>
+  <script src="js/dominios.js"></script>
+  <script src="js/mock-fornecedores.js"></script>
+  <script src="js/status.js"></script>
+  <script src="js/busca.js"></script>
+</body>
+</html>
