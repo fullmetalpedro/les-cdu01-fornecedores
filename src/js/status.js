@@ -1,5 +1,7 @@
-// js/status.js (Pessoa B) - Tela 11.4, modal de inativação/ativação (A4, A5, E4).
-// Função exposta conforme docs/contrato-integracao.md, seção 5.
+/*
+ * Tela 11.4 (Inativação e Ativação) – CDU01 Manter Cadastro de Fornecedores.
+ * Dona: Pessoa B. Função exposta conforme docs/contrato-integracao.md, seção 5.
+ */
 
 /**
  * Abre a tela 11.4 sobre a tela de busca.
@@ -16,41 +18,52 @@ function abrirModalStatus(fornecedor, operacao, aoConcluir) {
 
   const overlay = document.createElement("div");
   overlay.className = "modal-overlay";
+  // Apenas a estrutura estática vai para o innerHTML; os dados do fornecedor (razão
+  // social, CNPJ etc.) são preenchidos depois via textContent para não permitir
+  // injeção de HTML a partir de dados que, na entrega final, vêm do usuário.
   overlay.innerHTML = `
     <div class="modal-card" role="dialog" aria-modal="true">
       <div class="modal-header">
-        <span class="modal-icon ${isInativar ? "icon-inativar" : "icon-ativar"}">${isInativar ? "⛔" : "✓"}</span>
+        <span class="modal-icon ${isInativar ? "icon-inativar" : "icon-ativar"}">
+          <i data-lucide="${isInativar ? "ban" : "circle-check"}" class="icone" aria-hidden="true"></i>
+        </span>
         <div>
-          <h2 class="modal-title">${isInativar ? "Inativar Fornecedor" : "Ativar Fornecedor"}</h2>
-          <p class="modal-subtitle">${fornecedor.codigo} · ${fornecedor.razaoSocial} · ${fornecedor.cnpj}</p>
+          <h2 class="modal-title"></h2>
+          <p class="modal-subtitle"></p>
         </div>
       </div>
       <div class="modal-body">
         <div id="modalStatusAlert" class="form-alert" hidden>
-          <span>⚠️</span>
+          <i data-lucide="circle-alert" class="icone" aria-hidden="true"></i>
           <span id="modalStatusAlertText"></span>
         </div>
-        <div class="field" data-field="categoria">
-          <label for="cboCategoria">${isInativar ? "Categoria de inativação" : "Categoria de ativação"} *</label>
+        <div class="campo" data-field="categoria">
+          <label for="cboCategoria">${isInativar ? "Categoria de inativação" : "Categoria de ativação"} <span class="obrigatorio">*</span></label>
           <select id="cboCategoria" name="categoria">
             <option value="">Selecione</option>
           </select>
           <span class="field-error" hidden>Campo obrigatório</span>
         </div>
-        <div class="field" data-field="justificativa">
-          <label for="txtJustificativa">Justificativa *</label>
+        <div class="campo" data-field="justificativa">
+          <label for="txtJustificativa">Justificativa <span class="obrigatorio">*</span></label>
           <textarea id="txtJustificativa" name="justificativa" rows="4" maxlength="255"></textarea>
           <span class="char-counter">Máximo de 255 caracteres</span>
           <span class="field-error" hidden>Campo obrigatório</span>
         </div>
       </div>
       <div class="modal-actions">
-        <button type="button" class="btn btn-secondary" id="btnCancelarStatus">Cancelar</button>
-        <button type="button" class="btn ${isInativar ? "btn-danger" : "btn-primary"}" id="btnConfirmarStatus">Confirmar</button>
+        <button type="button" class="botao" id="btnCancelarStatus">Cancelar</button>
+        <button type="button" class="botao ${isInativar ? "botao--perigo" : "botao--primario"}" id="btnConfirmarStatus">Confirmar</button>
       </div>
     </div>
   `;
+
+  overlay.querySelector(".modal-title").textContent = isInativar ? "Inativar Fornecedor" : "Ativar Fornecedor";
+  overlay.querySelector(".modal-subtitle").textContent =
+    `${fornecedor.codigo} · ${fornecedor.razaoSocial} · ${fornecedor.cnpj}`;
+
   document.body.appendChild(overlay);
+  if (window.lucide) lucide.createIcons();
 
   const cboCategoria = overlay.querySelector("#cboCategoria");
   categorias.forEach((categoria) => {
@@ -69,7 +82,7 @@ function abrirModalStatus(fornecedor, operacao, aoConcluir) {
   }
 
   function limparErros() {
-    overlay.querySelectorAll(".field.has-error").forEach((campo) => campo.classList.remove("has-error"));
+    overlay.querySelectorAll(".campo.has-error").forEach((campo) => campo.classList.remove("has-error"));
     overlay.querySelectorAll(".field-error").forEach((span) => (span.hidden = true));
     alertBox.hidden = true;
   }

@@ -1,6 +1,12 @@
-// js/cadastro.js (Pessoa B) - Tela 11.3, modos novo/alterar/visualizar (P3-P6, A1, A3, E1).
+/*
+ * Tela 11.3 (Cadastro de Fornecedor) – CDU01 Manter Cadastro de Fornecedores.
+ * Dona: Pessoa B. Contrato com a Pessoa A: docs/contrato-integracao.md.
+ * Modos novo/alterar/visualizar (P3-P6, A1, A3, E1).
+ */
 (function () {
   "use strict";
+
+  const $ = (id) => document.getElementById(id);
 
   // RN0081 - Razão Social, Nome Fantasia, CNPJ, E-mail e Telefone (tipo + DDD + número)
   // RN0082 - Tipo Logradouro, Logradouro, Número, Bairro, CEP, Cidade, Estado e País
@@ -22,14 +28,14 @@
     { name: "endereco.pais", label: "País" },
   ];
 
-  const form = document.getElementById("formCadastro");
-  const btnSalvar = document.getElementById("btnSalvar");
-  const btnCancelar = document.getElementById("btnCancelar");
-  const pageTitle = document.getElementById("pageTitle");
-  const statusBadge = document.getElementById("statusBadge");
-  const requiredHint = document.getElementById("requiredHint");
-  const formAlert = document.getElementById("formAlert");
-  const formAlertDetail = document.getElementById("formAlertDetail");
+  const form = $("formCadastro");
+  const btnSalvar = $("btnSalvar");
+  const btnCancelar = $("btnCancelar");
+  const pageTitle = $("pageTitle");
+  const statusBadge = $("statusBadge");
+  const requiredHint = $("requiredHint");
+  const formAlert = $("formAlert");
+  const formAlertDetail = $("formAlertDetail");
 
   function getParams() {
     const params = new URLSearchParams(window.location.search);
@@ -51,87 +57,66 @@
   }
 
   function preencherCombos() {
-    preencherCombo(document.getElementById("cboTipoTelefone"), dominios.tiposTelefone, "codigo", "nome");
-    preencherCombo(document.getElementById("cboTipoLogradouro"), dominios.tiposLogradouro, "codigo", "nome");
-    preencherCombo(document.getElementById("cboEstado"), dominios.estados, "sigla", "nome");
-    preencherCombo(document.getElementById("cboPais"), dominios.paises, "codigo", "nome");
+    preencherCombo($("cboTipoTelefone"), dominios.tiposTelefone, "codigo", "nome");
+    preencherCombo($("cboTipoLogradouro"), dominios.tiposLogradouro, "codigo", "nome");
+    preencherCombo($("cboEstado"), dominios.estados, "sigla", "nome");
+    preencherCombo($("cboPais"), dominios.paises, "codigo", "nome");
   }
 
-  // P3 - identificação do usuário autenticado. usuarioLogado vem de js/mock-fornecedores.js
-  // (Pessoa A, contrato seção 6); usa um valor padrão enquanto esse arquivo não existir.
-  function preencherTopbar() {
-    const usuario =
-      typeof usuarioLogado !== "undefined"
-        ? usuarioLogado
-        : { nome: "Usuário", perfil: "Administrador" };
-    document.getElementById("topbarUserName").textContent = usuario.nome;
-    document.getElementById("topbarUserRole").textContent = usuario.perfil;
-    document.getElementById("topbarUserAvatar").textContent = usuario.nome
-      .split(" ")
-      .map((parte) => parte[0])
-      .slice(0, 2)
-      .join("")
-      .toUpperCase();
+  // P3 - identificação do usuário autenticado (usuarioLogado vem de js/mock-fornecedores.js).
+  function exibirUsuario() {
+    $("lblNomeUsuario").textContent = usuarioLogado.nome;
+    $("lblPerfilUsuario").textContent = usuarioLogado.perfil;
+    $("lblIniciaisUsuario").textContent = usuarioLogado.nome
+      .split(" ").map((p) => p[0]).slice(0, 2).join("").toUpperCase();
   }
 
   // Busca o fornecedor no mock da Pessoa A (js/mock-fornecedores.js, contrato seção 2).
   function buscarFornecedorPorCodigo(codigo) {
-    if (typeof mockFornecedores === "undefined") return null;
-    return mockFornecedores.find((f) => f.codigo === codigo) || null;
+    return fornecedores.find((f) => f.codigo === codigo) || null;
   }
 
-  function getCampo(name) {
-    return form.querySelector(`[name="${CSS.escape(name)}"]`);
-  }
-
+  // Os name="" do formulário seguem o contrato (seção 2), incluindo os aninhados
+  // (telefone.ddd, endereco.cidade etc.), então dá para percorrer form.elements.
   function preencherFormulario(fornecedor) {
-    getCampo("codigo").value = fornecedor.codigo || "";
-    getCampo("razaoSocial").value = fornecedor.razaoSocial || "";
-    getCampo("nomeFantasia").value = fornecedor.nomeFantasia || "";
-    getCampo("cnpj").value = fornecedor.cnpj || "";
-    getCampo("email").value = fornecedor.email || "";
-    getCampo("telefone.tipo").value = (fornecedor.telefone || {}).tipo || "";
-    getCampo("telefone.ddd").value = (fornecedor.telefone || {}).ddd || "";
-    getCampo("telefone.numero").value = (fornecedor.telefone || {}).numero || "";
-    getCampo("endereco.tipoLogradouro").value = (fornecedor.endereco || {}).tipoLogradouro || "";
-    getCampo("endereco.logradouro").value = (fornecedor.endereco || {}).logradouro || "";
-    getCampo("endereco.numero").value = (fornecedor.endereco || {}).numero || "";
-    getCampo("endereco.complemento").value = (fornecedor.endereco || {}).complemento || "";
-    getCampo("endereco.bairro").value = (fornecedor.endereco || {}).bairro || "";
-    getCampo("endereco.cep").value = (fornecedor.endereco || {}).cep || "";
-    getCampo("endereco.cidade").value = (fornecedor.endereco || {}).cidade || "";
-    getCampo("endereco.estado").value = (fornecedor.endereco || {}).estado || "";
-    getCampo("endereco.pais").value = (fornecedor.endereco || {}).pais || "";
+    for (const campo of form.elements) {
+      if (!campo.name) continue;
+      const valor = campo.name.split(".").reduce((atual, chave) => (atual ? atual[chave] : undefined), fornecedor);
+      campo.value = valor ?? "";
+    }
   }
 
   function exibirStatusBadge(status) {
+    const ativo = status === "ATIVO";
     statusBadge.hidden = false;
-    statusBadge.textContent = status === "ATIVO" ? "ATIVO" : "INATIVO";
-    statusBadge.classList.remove("status-ativo", "status-inativo");
-    statusBadge.classList.add(status === "ATIVO" ? "status-ativo" : "status-inativo");
+    statusBadge.textContent = ativo ? "ATIVO" : "INATIVO";
+    statusBadge.classList.remove("badge--ativo", "badge--inativo");
+    statusBadge.classList.add(ativo ? "badge--ativo" : "badge--inativo");
   }
 
   // A1.1 - na visualização todos os campos são somente leitura.
   function aplicarSomenteLeitura() {
-    form.querySelectorAll("input, select, textarea").forEach((campo) => {
-      if (campo.tagName === "SELECT") campo.setAttribute("disabled", "disabled");
-      else campo.setAttribute("readonly", "readonly");
-    });
+    for (const campo of form.elements) {
+      if (!campo.name) continue;
+      if (campo.tagName === "SELECT") campo.disabled = true;
+      else campo.readOnly = true;
+    }
     btnSalvar.hidden = true; // Ambiguidade #1 (docs/ambiguidades.md): só Cancelar na visualização.
     requiredHint.hidden = true;
   }
 
   function inicializar() {
-    preencherTopbar();
+    exibirUsuario();
     preencherCombos();
     aplicarMascarasEEntradaNumerica();
+    if (window.lucide) lucide.createIcons();
 
     const { modo, codigo, cnpj } = getParams();
 
     if (modo === "novo") {
       pageTitle.textContent = "Novo Fornecedor";
       // P1.3 / P4.1 - CNPJ recuperado quando usado como parâmetro de busca.
-      if (cnpj) getCampo("cnpj").value = cnpj;
+      if (cnpj) $("txtCnpj").value = cnpj;
     } else if (modo === "alterar") {
       pageTitle.textContent = "Alterar Fornecedor";
       const fornecedor = buscarFornecedorPorCodigo(codigo);
@@ -158,19 +143,19 @@
   }
 
   function aplicarMascarasEEntradaNumerica() {
-    getCampo("cnpj").addEventListener("input", (evento) => {
+    $("txtCnpj").addEventListener("input", (evento) => {
       evento.target.value = aplicarMascaraCnpj(evento.target.value);
     });
     // Ambiguidade #5: aceita 8 ou 9 dígitos para o número do telefone.
-    ["telefone.ddd", "telefone.numero", "endereco.cep"].forEach((name) => {
-      getCampo(name).addEventListener("input", (evento) => {
+    ["txtDdd", "txtNumeroTelefone", "txtCep"].forEach((id) => {
+      $(id).addEventListener("input", (evento) => {
         evento.target.value = evento.target.value.replace(/\D/g, "");
       });
     });
   }
 
   function limparErros() {
-    form.querySelectorAll(".field.has-error").forEach((campo) => campo.classList.remove("has-error"));
+    form.querySelectorAll(".campo.has-error").forEach((campo) => campo.classList.remove("has-error"));
     form.querySelectorAll(".field-error").forEach((span) => (span.hidden = true));
     formAlert.hidden = true;
   }
@@ -179,7 +164,7 @@
   function validarObrigatorios() {
     const pendentes = [];
     CAMPOS_OBRIGATORIOS.forEach(({ name, label }) => {
-      const campo = getCampo(name);
+      const campo = form.querySelector(`[name="${CSS.escape(name)}"]`);
       const valor = (campo.value || "").trim();
       if (!valor) pendentes.push({ name, label, campo });
     });
@@ -189,7 +174,7 @@
   // E1 - destaca os campos pendentes, mostra quais estão faltando e mantém os dados digitados.
   function exibirErrosValidacao(pendentes) {
     pendentes.forEach(({ name, campo }) => {
-      const wrapper = form.querySelector(`.field[data-field="${CSS.escape(name)}"]`);
+      const wrapper = form.querySelector(`.campo[data-field="${CSS.escape(name)}"]`);
       wrapper.classList.add("has-error");
       const erro = wrapper.querySelector(".field-error");
       if (erro) erro.hidden = false;
