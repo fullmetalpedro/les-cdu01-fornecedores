@@ -13,7 +13,7 @@
   <!-- P3: identificação do usuário autenticado em todas as telas do cadastro -->
   <header class="topbar">
     <div class="topbar__marca">
-      <span class="topbar__logo" aria-hidden="true">📖</span>
+      <i data-lucide="book-open" class="icone topbar__logo" aria-hidden="true"></i>
       <strong>E-commerce de Livros</strong>
       <span class="topbar__area">· Administração · Fornecedores</span>
     </div>
@@ -74,7 +74,7 @@
         </div>
         <!-- P1.2 · Permissão de acesso: FORNECEDOR_CONSULTAR -->
         <button type="submit" id="btnBuscar" class="botao botao--primario" data-permissao="FORNECEDOR_CONSULTAR">
-          <span aria-hidden="true">🔍</span> Buscar
+          <i data-lucide="search" class="icone" aria-hidden="true"></i> Buscar
         </button>
       </div>
     </form>
@@ -84,11 +84,11 @@
       <div class="resultado__barra">
         <h2 id="lblContagem" class="resultado__contagem">Resultado da busca</h2>
         <div class="resultado__acoes" role="toolbar" aria-label="Ações do fornecedor">
-          <button type="button" id="btnNovo" class="botao" data-permissao="FORNECEDOR_INCLUIR" disabled>＋ Novo</button>
-          <button type="button" id="btnVisualizar" class="botao" data-permissao="FORNECEDOR_CONSULTAR" disabled>Visualizar</button>
-          <button type="button" id="btnAlterar" class="botao" data-permissao="FORNECEDOR_ALTERAR" disabled>Alterar</button>
-          <button type="button" id="btnInativar" class="botao botao--perigo" data-permissao="FORNECEDOR_INATIVAR" disabled>Inativar</button>
-          <button type="button" id="btnAtivar" class="botao botao--sucesso" data-permissao="FORNECEDOR_ATIVAR" disabled>Ativar</button>
+          <button type="button" id="btnNovo" class="botao" data-permissao="FORNECEDOR_INCLUIR" disabled><i data-lucide="plus" class="icone" aria-hidden="true"></i> Novo</button>
+          <button type="button" id="btnVisualizar" class="botao" data-permissao="FORNECEDOR_CONSULTAR" disabled><i data-lucide="eye" class="icone" aria-hidden="true"></i> Visualizar</button>
+          <button type="button" id="btnAlterar" class="botao" data-permissao="FORNECEDOR_ALTERAR" disabled><i data-lucide="pencil" class="icone" aria-hidden="true"></i> Alterar</button>
+          <button type="button" id="btnInativar" class="botao botao--perigo" data-permissao="FORNECEDOR_INATIVAR" disabled><i data-lucide="ban" class="icone" aria-hidden="true"></i> Inativar</button>
+          <button type="button" id="btnAtivar" class="botao botao--sucesso" data-permissao="FORNECEDOR_ATIVAR" disabled><i data-lucide="circle-check" class="icone" aria-hidden="true"></i> Ativar</button>
         </div>
       </div>
 
@@ -110,11 +110,13 @@
 
       <!-- E3: nenhum fornecedor encontrado, exibido na própria tela de pesquisa -->
       <div id="msgNenhumEncontrado" class="mensagem" role="status" hidden>
+        <i data-lucide="search-x" class="icone icone--grande" aria-hidden="true"></i>
         <strong>Não foram encontrados fornecedores.</strong>
       </div>
     </section>
   </main>
 
+  <script src="https://unpkg.com/lucide@0.469.0/dist/umd/lucide.min.js"></script>
   <script src="js/dominios.js"></script>
   <script src="js/mock-fornecedores.js"></script>
   <script src="js/status.js" onerror="this.remove()"></script>

@@ -170,3 +170,9 @@ input[readonly], input:disabled, select:disabled, textarea[readonly] {
   color: var(--muted); text-align: center;
 }
 .mensagem strong { color: var(--text); font-size: 16px; }
+
+/* ---------- Ícones (Lucide) ---------- */
+.icone { width: 16px; height: 16px; flex: none; stroke-width: 2; }
+svg.icone { display: inline-block; }
+.topbar__logo { width: 22px; height: 22px; color: var(--primary); }
+.icone--grande { width: 28px; height: 28px; color: var(--primary); }

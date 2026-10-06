@@ -230,6 +230,7 @@
   botoes.ativar.addEventListener("click", () => abrirStatus("ativar"));
 
   // ---------- Inicialização ----------
+  if (window.lucide) lucide.createIcons();
   exibirUsuario();
   carregarEstados();
   restaurarParametros();
