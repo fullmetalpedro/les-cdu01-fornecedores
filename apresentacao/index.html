@@ -50,7 +50,7 @@ html,body{margin:0;height:100%;background:var(--bg);font-family:Inter,system-ui,
 .screen img.swap{animation:fadeIn .45s ease both}
 
 /* overlays (screen coordinates, 1440px base) */
-.hl{position:absolute;border:3px solid var(--hl);border-radius:10px;animation:hlIn .45s cubic-bezier(.2,.9,.3,1.3) both,pulse 1.8s ease-in-out infinite;pointer-events:none}
+.hl{position:absolute;border:3px solid var(--hl);border-radius:10px;animation:hlIn .45s cubic-bezier(.2,.9,.3,1.3) both,pulse 1.2s ease-out 1;pointer-events:none}
 .hl.off{border-style:dashed;border-color:var(--bad)}
 .hl .tag{position:absolute;left:-3px;bottom:calc(100% + 8px);white-space:nowrap;background:var(--hl);color:var(--hl-ink);font-size:17px;font-weight:700;padding:6px 12px;border-radius:8px;box-shadow:0 6px 16px rgba(0,0,0,.18)}
 .hl.below .tag{bottom:auto;top:calc(100% + 8px)}
