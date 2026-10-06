@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Fornecedores – Cadastro</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="css/estilo.css" />
+<link rel="stylesheet" href="css/cadastro.css" />
+<link rel="stylesheet" href="css/status.css" />
+</head>
+<body>
+
+  <!-- P3: identificação do usuário autenticado em todas as telas do cadastro (reaproveita a topbar da Pessoa A) -->
+  <header class="topbar">
+    <div class="topbar__marca">
+      <i data-lucide="book-open" class="icone topbar__logo" aria-hidden="true"></i>
+      <strong>E-commerce de Livros</strong>
+      <span class="topbar__area">· Administração · Fornecedores</span>
+    </div>
+    <div class="topbar__usuario" id="usuarioAutenticado">
+      <div class="topbar__usuario-info">
+        <span id="lblNomeUsuario" class="topbar__nome"></span>
+        <span id="lblPerfilUsuario" class="topbar__perfil"></span>
+      </div>
+      <span id="lblIniciaisUsuario" class="topbar__avatar" aria-hidden="true"></span>
+    </div>
+  </header>
+
+  <main class="conteudo">
+    <div class="cabecalho cabecalho--cadastro">
+      <h1>
+        <span id="pageTitle">Novo Fornecedor</span>
+        <span id="statusBadge" class="badge" hidden></span>
+      </h1>
+      <span class="required-hint" id="requiredHint">* Campo de preenchimento obrigatório</span>
+    </div>
+
+    <form id="formCadastro" class="painel" novalidate>
+
+      <!-- E1 - dados obrigatórios não preenchidos (P6) -->
+      <div id="formAlert" class="form-alert" hidden>
+        <i data-lucide="circle-alert" class="icone" aria-hidden="true"></i>
+        <div>
+          <strong>Existem campos obrigatórios não preenchidos</strong>
+          <span id="formAlertDetail"></span>
+        </div>
+      </div>
+
+      <!-- P4.1 / RN0081 -->
+      <section class="secao">
+        <div>
+          <h2 class="painel__titulo">Dados do fornecedor</h2>
+          <p class="secao__desc">Identificação da empresa fornecedora (RN0081).</p>
+        </div>
+        <div class="secao__grade">
+          <div class="campo" data-field="codigo">
+            <label for="txtCodigo">Código</label>
+            <div class="campo-bloqueado">
+              <!-- RNF0081 - código único gerado pelo sistema: não editável, vazio na inclusão -->
+              <input type="text" id="txtCodigo" name="codigo" maxlength="10" readonly placeholder="Gerado automaticamente" />
+              <i data-lucide="lock" class="icone" aria-hidden="true"></i>
+            </div>
+          </div>
+          <div class="campo" data-field="razaoSocial">
+            <label for="txtRazaoSocial">Razão Social <span class="obrigatorio">*</span></label>
+            <input type="text" id="txtRazaoSocial" name="razaoSocial" maxlength="100" />
+            <span class="field-error" hidden>Campo obrigatório</span>
+          </div>
+          <div class="campo" data-field="nomeFantasia">
+            <label for="txtNomeFantasia">Nome Fantasia <span class="obrigatorio">*</span></label>
+            <input type="text" id="txtNomeFantasia" name="nomeFantasia" maxlength="60" />
+            <span class="field-error" hidden>Campo obrigatório</span>
+          </div>
+          <div class="campo" data-field="cnpj">
+            <label for="txtCnpj">CNPJ <span class="obrigatorio">*</span></label>
+            <input type="text" id="txtCnpj" name="cnpj" maxlength="18" placeholder="00.000.000/0000-00" />
+            <span class="field-error" hidden>Campo obrigatório</span>
+          </div>
+          <div class="campo campo--larga" data-field="email">
+            <label for="txtEmail">E-mail <span class="obrigatorio">*</span></label>
+            <input type="email" id="txtEmail" name="email" maxlength="100" />
+            <span class="field-error" hidden>Campo obrigatório</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- P4.2 / RN0081 -->
+      <section class="secao">
+        <div>
+          <h2 class="painel__titulo">Telefone</h2>
+          <p class="secao__desc">Composto por tipo, DDD e número (RN0081).</p>
+        </div>
+        <div class="secao__grade">
+          <div class="campo" data-field="telefone.tipo">
+            <label for="cboTipoTelefone">Tipo de Telefone <span class="obrigatorio">*</span></label>
+            <select id="cboTipoTelefone" name="telefone.tipo">
+              <option value="">Selecione</option>
+            </select>
+            <span class="field-error" hidden>Campo obrigatório</span>
+          </div>
+          <div class="campo" data-field="telefone.ddd">
+            <label for="txtDdd">DDD <span class="obrigatorio">*</span></label>
+            <input type="text" inputmode="numeric" id="txtDdd" name="telefone.ddd" maxlength="2" />
+            <span class="field-error" hidden>Campo obrigatório</span>
+          </div>
+          <div class="campo" data-field="telefone.numero">
+            <label for="txtNumeroTelefone">Número do Telefone <span class="obrigatorio">*</span></label>
+            <input type="text" inputmode="numeric" id="txtNumeroTelefone" name="telefone.numero" maxlength="9" />
+            <span class="field-error" hidden>Campo obrigatório</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- P4.3 / RN0082 -->
+      <section class="secao">
+        <div>
+          <h2 class="painel__titulo">Endereço</h2>
+          <p class="secao__desc">Todos os campos são obrigatórios, exceto Complemento (RN0082).</p>
+        </div>
+        <div class="secao__grade">
+          <div class="campo" data-field="endereco.tipoLogradouro">
+            <label for="cboTipoLogradouro">Tipo de Logradouro <span class="obrigatorio">*</span></label>
+            <select id="cboTipoLogradouro" name="endereco.tipoLogradouro">
+              <option value="">Selecione</option>
+            </select>
+            <span class="field-error" hidden>Campo obrigatório</span>
+          </div>
+          <div class="campo" data-field="endereco.logradouro">
+            <label for="txtLogradouro">Logradouro <span class="obrigatorio">*</span></label>
+            <input type="text" id="txtLogradouro" name="endereco.logradouro" maxlength="100" />
+            <span class="field-error" hidden>Campo obrigatório</span>
+          </div>
+          <div class="campo" data-field="endereco.numero">
+            <label for="txtNumero">Número <span class="obrigatorio">*</span></label>
+            <input type="text" id="txtNumero" name="endereco.numero" maxlength="10" />
+            <span class="field-error" hidden>Campo obrigatório</span>
+          </div>
+          <div class="campo" data-field="endereco.complemento">
+            <label for="txtComplemento">Complemento</label>
+            <input type="text" id="txtComplemento" name="endereco.complemento" maxlength="60" />
+          </div>
+          <div class="campo" data-field="endereco.bairro">
+            <label for="txtBairro">Bairro <span class="obrigatorio">*</span></label>
+            <input type="text" id="txtBairro" name="endereco.bairro" maxlength="60" />
+            <span class="field-error" hidden>Campo obrigatório</span>
+          </div>
+          <div class="campo" data-field="endereco.cep">
+            <label for="txtCep">CEP <span class="obrigatorio">*</span></label>
+            <input type="text" inputmode="numeric" id="txtCep" name="endereco.cep" maxlength="8" />
+            <span class="field-error" hidden>Campo obrigatório</span>
+          </div>
+          <div class="campo" data-field="endereco.cidade">
+            <label for="txtCidade">Cidade <span class="obrigatorio">*</span></label>
+            <input type="text" id="txtCidade" name="endereco.cidade" maxlength="60" />
+            <span class="field-error" hidden>Campo obrigatório</span>
+          </div>
+          <div class="campo" data-field="endereco.estado">
+            <label for="cboEstado">Estado <span class="obrigatorio">*</span></label>
+            <select id="cboEstado" name="endereco.estado">
+              <option value="">Selecione</option>
+            </select>
+            <span class="field-error" hidden>Campo obrigatório</span>
+          </div>
+          <div class="campo" data-field="endereco.pais">
+            <label for="cboPais">País <span class="obrigatorio">*</span></label>
+            <select id="cboPais" name="endereco.pais">
+              <option value="">Selecione</option>
+            </select>
+            <span class="field-error" hidden>Campo obrigatório</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- P5 / A3.2 -->
+      <div class="form-actions">
+        <button type="button" id="btnCancelar" class="botao">Cancelar</button>
+        <button type="submit" id="btnSalvar" class="botao botao--primario">
+          <i data-lucide="check" class="icone" aria-hidden="true"></i> Salvar
+        </button>
+      </div>
+    </form>
+  </main>
+
+  <script src="https://unpkg.com/lucide@0.469.0/dist/umd/lucide.min.js"></script>
+  <script src="js/dominios.js"></script>
+  <script src="js/mock-fornecedores.js"></script>
+  <script src="js/status.js"></script>
+  <script src="js/cadastro.js"></script>
+</body>
+</html>
