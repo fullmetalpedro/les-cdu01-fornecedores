@@ -1,0 +1,377 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Guia de Fornecedores</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0F1B2B; --ink:#1B2430; --muted:#5E6A7A; --primary:#1F4E79; --primary-2:#2F6EA8;
+  --soft:#E8EFF6; --paper:#F4F5F7; --hl:#2563EB; --hl-ink:#FFFFFF; --ok:#067647; --bad:#B42318;
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;background:var(--bg);font-family:Inter,system-ui,sans-serif;overflow:hidden}
+#viewport{position:fixed;inset:0;display:flex;align-items:center;justify-content:center}
+#stage{width:1920px;height:1080px;position:relative;flex:none;transform-origin:center center;background:var(--paper);overflow:hidden}
+
+/* ---------- slides ---------- */
+.slide{position:absolute;inset:0;opacity:0;visibility:hidden;transform:translateX(60px);transition:opacity .55s ease,transform .55s ease,visibility 0s linear .55s}
+.slide.active{opacity:1;visibility:visible;transform:none;transition:opacity .55s ease,transform .55s ease}
+.slide.leaving{transform:translateX(-60px)}
+.slide:not(.run) .anim,.slide:not(.run) .anim *{animation:none!important}
+.anim{animation-fill-mode:both}
+
+/* ---------- demo layout ---------- */
+.demo{display:grid;grid-template-columns:560px 1fr;height:100%}
+.side{background:#fff;border-right:1px solid #D5DAE1;padding:72px 56px 120px;display:flex;flex-direction:column;gap:22px}
+.kicker{font-size:15px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--primary-2)}
+.side h2{margin:0;font-size:44px;line-height:1.1;letter-spacing:-.02em;color:var(--ink)}
+.side .lead{margin:0;font-size:19px;line-height:1.5;color:var(--muted)}
+.steps{list-style:none;margin:12px 0 0;padding:0;display:flex;flex-direction:column;gap:14px}
+.steps li{display:flex;gap:14px;align-items:flex-start;font-size:19px;line-height:1.45;color:var(--ink);opacity:.28;animation:stepOn .5s ease both}
+.steps .num{flex:none;width:30px;height:30px;border-radius:50%;display:grid;place-items:center;font-size:14px;font-weight:700;background:#E5E8ED;color:var(--muted);animation:numOn .5s ease both;animation-delay:inherit}
+.steps b{color:var(--primary)}
+.rule{margin-top:auto;font-size:15px;color:var(--muted);border-left:3px solid var(--hl);padding:8px 0 8px 14px;line-height:1.45}
+.rule code{font-family:ui-monospace,Consolas,monospace;font-size:14px;background:var(--soft);padding:1px 6px;border-radius:4px;color:var(--primary)}
+
+.stagewrap{display:flex;align-items:flex-start;justify-content:center;padding:64px 48px 0}
+.browser{width:1206px;border-radius:14px;background:#fff;box-shadow:0 30px 80px -20px rgba(15,27,43,.35),0 0 0 1px rgba(15,27,43,.08);overflow:hidden}
+.bar{height:40px;display:flex;align-items:center;gap:8px;padding:0 16px;background:#E9ECF1;border-bottom:1px solid #D5DAE1}
+.bar i{width:12px;height:12px;border-radius:50%;background:#C9CED6}
+.bar i:nth-child(1){background:#F87171}.bar i:nth-child(2){background:#FBBF24}.bar i:nth-child(3){background:#34D399}
+.bar span{margin-left:16px;flex:1;height:24px;border-radius:6px;background:#fff;font-size:13px;color:var(--muted);display:flex;align-items:center;padding:0 12px}
+.viewport{position:relative;overflow:hidden}
+.screen{position:absolute;left:0;top:0;width:1440px;transform-origin:0 0}
+.screen img{position:absolute;left:0;top:0;width:1440px;display:block}
+.screen img.swap{animation:fadeIn .45s ease both}
+
+/* overlays (screen coordinates, 1440px base) */
+.hl{position:absolute;border:3px solid var(--hl);border-radius:10px;animation:hlIn .45s cubic-bezier(.2,.9,.3,1.3) both,pulse 1.8s ease-in-out infinite;pointer-events:none}
+.hl.off{border-style:dashed;border-color:var(--bad)}
+.hl .tag{position:absolute;left:-3px;bottom:calc(100% + 8px);white-space:nowrap;background:var(--hl);color:var(--hl-ink);font-size:17px;font-weight:700;padding:6px 12px;border-radius:8px;box-shadow:0 6px 16px rgba(0,0,0,.18)}
+.hl.below .tag{bottom:auto;top:calc(100% + 8px)}
+.hl.right .tag{left:auto;right:-3px}
+.hl.left .tag{left:auto;bottom:auto;right:calc(100% + 12px);top:50%;transform:translateY(-50%)}
+.hl.off .tag{background:var(--bad);color:#fff}
+.typed{position:absolute;font-size:14px;color:var(--ink);white-space:nowrap;transform:translateY(-50%);animation-name:typing,fadeOut;animation-fill-mode:both}
+.typed::after{content:"";display:inline-block;width:1.5px;height:17px;background:var(--ink);margin-left:1px;vertical-align:-3px;animation:blink .8s steps(1) infinite}
+.ripple{position:absolute;width:56px;height:56px;border-radius:50%;background:rgba(37,99,235,.55);border:2px solid var(--hl);animation:ripple .65s ease-out both;pointer-events:none}
+.cursor{position:absolute;left:-6px;top:-3px;width:48px;height:48px;filter:drop-shadow(0 3px 4px rgba(0,0,0,.35));animation-timing-function:cubic-bezier(.45,0,.25,1);animation-fill-mode:both;z-index:5}
+
+/* ---------- cover / closing ---------- */
+.cover{height:100%;background:radial-gradient(1200px 700px at 85% 20%,#24507D 0%,transparent 60%),linear-gradient(135deg,#0F1B2B,#16314F);color:#fff;display:grid;grid-template-columns:1fr 1fr;align-items:center;padding:0 120px;gap:40px}
+.cover .kicker{color:#93C5FD}
+.cover h1{font-size:88px;line-height:1;margin:18px 0 26px;letter-spacing:-.03em}
+.cover p{font-size:24px;line-height:1.5;color:#C7D4E5;margin:0;max-width:720px}
+.cover .meta{margin-top:40px;display:flex;gap:12px;flex-wrap:wrap}
+.chip{border:1px solid rgba(255,255,255,.25);border-radius:999px;padding:8px 16px;font-size:16px;color:#DCE6F2}
+.stack{position:relative;height:720px}
+.stack img{position:absolute;width:640px;border-radius:12px;box-shadow:0 30px 60px rgba(0,0,0,.45);animation:rise .9s cubic-bezier(.2,.8,.2,1) both,float 6s ease-in-out infinite}
+.rise{animation:rise .8s cubic-bezier(.2,.8,.2,1) both}
+
+/* ---------- flow ---------- */
+.flow{height:100%;padding:90px 120px;display:flex;flex-direction:column;gap:48px}
+.flow h2{font-size:56px;margin:0;letter-spacing:-.02em;color:var(--ink)}
+.flow .lead{font-size:22px;color:var(--muted);margin:-28px 0 0}
+.lanes{display:grid;grid-template-columns:300px 80px 340px 80px 400px 80px 330px;align-items:center}
+.node{background:#fff;border:1px solid #D5DAE1;border-radius:16px;padding:24px;box-shadow:0 10px 30px -12px rgba(15,27,43,.25);animation:rise .6s cubic-bezier(.2,.8,.2,1) both}
+.node small{display:block;font-size:14px;font-weight:700;letter-spacing:.1em;color:var(--primary-2);text-transform:uppercase;margin-bottom:6px}
+.node strong{display:block;font-size:26px;color:var(--ink)}
+.node p{margin:8px 0 0;font-size:17px;color:var(--muted);line-height:1.45}
+.arrow{height:4px;background:var(--primary);position:relative;transform-origin:left;animation:grow .5s ease both;margin:0 10px}
+.arrow::after{content:"";position:absolute;right:-4px;top:-7px;border-left:14px solid var(--primary);border-top:9px solid transparent;border-bottom:9px solid transparent}
+.acts{display:flex;flex-direction:column;gap:12px}
+.act{display:flex;align-items:center;gap:12px;background:#fff;border:1px solid #D5DAE1;border-radius:12px;padding:12px 16px;font-size:19px;font-weight:600;color:var(--ink);animation:rise .5s ease both}
+.act em{font-style:normal;font-size:14px;color:var(--muted);font-weight:500;margin-left:auto}
+.targets{display:flex;flex-direction:column;gap:28px}
+.back{align-self:flex-start;display:flex;align-items:center;gap:14px;font-size:21px;color:var(--ink);background:var(--soft);border-radius:999px;padding:14px 26px;animation:rise .6s ease both}
+.back b{color:var(--primary)}
+
+/* ---------- rules ---------- */
+.rules{height:100%;padding:90px 120px;display:flex;flex-direction:column;gap:40px}
+.rules h2{font-size:56px;margin:0;color:var(--ink);letter-spacing:-.02em}
+.cards{display:grid;grid-template-columns:repeat(3,1fr);gap:28px}
+.card{background:#fff;border:1px solid #D5DAE1;border-radius:18px;padding:32px;animation:rise .6s cubic-bezier(.2,.8,.2,1) both}
+.card h3{margin:0 0 18px;font-size:24px;color:var(--ink)}
+.card table{width:100%;border-collapse:collapse;font-size:17px}
+.card td{padding:10px 0;border-bottom:1px solid #EEF0F3;color:var(--ink);vertical-align:top}
+.card td+td{color:var(--muted);text-align:right}
+.card ul{margin:0;padding-left:20px;font-size:18px;line-height:1.7;color:var(--ink)}
+.card code{font-family:ui-monospace,Consolas,monospace;font-size:15px;color:var(--primary)}
+.card.warn{background:#EFF6FF;border-color:#BFDBFE}
+
+/* ---------- chrome ---------- */
+#hud{position:absolute;left:0;right:0;bottom:0;height:64px;display:flex;align-items:center;gap:16px;padding:0 32px;z-index:20;pointer-events:none}
+#hud .btns{display:flex;gap:8px;pointer-events:auto}
+#hud button{font:600 15px Inter,sans-serif;border:1px solid #CBD2DB;background:#fff;color:var(--ink);border-radius:8px;padding:8px 14px;cursor:pointer}
+#hud button:hover{background:var(--soft)}
+#hud .count{margin-left:auto;font-size:15px;font-weight:600;color:var(--muted);background:rgba(255,255,255,.85);padding:6px 12px;border-radius:8px}
+#progress{position:absolute;left:0;bottom:0;height:5px;background:var(--hl);transition:width .5s ease;z-index:21}
+.dark #hud .count{background:rgba(255,255,255,.12);color:#DCE6F2}
+
+/* ---------- keyframes ---------- */
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes fadeOut{to{opacity:0}}
+@keyframes stepOn{from{opacity:.28}to{opacity:1}}
+@keyframes numOn{from{background:#E5E8ED;color:#5E6A7A}to{background:#1F4E79;color:#fff}}
+@keyframes hlIn{from{opacity:0;transform:scale(1.18)}to{opacity:1;transform:scale(1)}}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(37,99,235,.55)}50%{box-shadow:0 0 0 12px rgba(37,99,235,0)}}
+@keyframes ripple{0%{opacity:1;transform:translate(-50%,-50%) scale(.2)}100%{opacity:0;transform:translate(-50%,-50%) scale(2)}}
+@keyframes typing{from{clip-path:inset(0 100% 0 0)}to{clip-path:inset(0 0 0 0)}}
+@keyframes blink{50%{opacity:0}}
+@keyframes rise{from{opacity:0;transform:translateY(28px)}to{opacity:1;transform:none}}
+@keyframes grow{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+@keyframes float{0%,100%{translate:0 0}50%{translate:0 -12px}}
+@media (prefers-reduced-motion:reduce){.anim,.anim *{animation-duration:.01s!important;animation-iteration-count:1!important}}
+</style>
+</head>
+<body>
+<div id="viewport"><div id="stage">
+  <div id="slides"></div>
+  <div id="hud">
+    <div class="btns">
+      <button id="prev" title="Anterior (←)">← Anterior</button>
+      <button id="replay" title="Repetir animação (R)">↻ Repetir</button>
+      <button id="next" title="Próximo (→ ou espaço)">Próximo →</button>
+    </div>
+    <span class="count" id="count"></span>
+  </div>
+  <div id="progress"></div>
+</div></div>
+
+<script>
+/* Coordenadas em pixels das telas exportadas do Pencil (largura base 1440). */
+const IMG = id => `img/${id}.png`;
+const H = {TqnTA:741,YI1YC:879,sNwCE:879,jFSGx:879,ntrar:879,Tq6mc:741,UBFrv:910,rhmoA:910,g4pE53:910,riIer:1056,qZTdr:1000,f5rLwV:1000,SHCD9:1000};
+const BTN = {buscar:[1324,345],novo:[872,444],visualizar:[988,444],alterar:[1109,444],inativar:[1222,444],ativar:[1332,444]};
+const BOX = {
+  status:[1076,324,180,38], resultado:[40,477,1360,354], novo:[826,426,92,35], visAlt:[926,426,234,35],
+  inativar:[1168,426,107,35], ativar:[1283,426,97,35], buscar:[1272,327,104,35],
+  row1:[40,519,1360,52], row3:[40,623,1360,52], razao:[230,226,614,60], e3:[40,477,1360,216],
+  codigo:[440,171,230,60], cnpj:[1012,247,240,60], complemento:[440,631,398,60], salvarCancelar:[1048,811,204,35],
+  alertaE1:[160,143,1120,63], email:[440,406,812,81], bairro:[854,735,398,81], cep:[440,832,150,81],
+  razaoCad:[686,171,566,60], form:[160,143,1120,719], cancelarVis:[1159,811,93,35],
+  categoria:[468,289,504,60], justificativa:[468,365,504,134], confirmar:[871,570,101,35],
+  alertaE4:[468,289,504,42], justE4:[468,423,504,155], confirmarE4:[871,649,101,35]
+};
+const SCALE = 1206/1440;
+
+const demos = [
+  {kicker:"Passo 1 · Tela 11.1", title:"Buscar fornecedores",
+   lead:"Antes de cadastrar, verifique se o fornecedor já existe.", url:"/admin/fornecedores",
+   imgs:[["TqnTA",0],["YI1YC",4.2]],
+   steps:[[0.3,"Preencha um ou mais <b>parâmetros</b>: código, razão social, nome fantasia, CNPJ, cidade, estado"],[1.8,"<b>Status</b> é obrigatório e começa em “Todos”"],[3.3,"Clique em <b>Buscar</b>"],[4.8,"A tabela lista os fornecedores e a opção <b>Novo</b> é habilitada"]],
+   acts:[["move",1.2,1166,343],["click",1.6,1166,343],["hl",1.8,"status","Ativo · Inativo · Todos"],["move",3.3,1324,345],["click",3.8,1324,345],["hl",4.8,"resultado","Seleção de um único registro","below"],["hl",5.6,"novo","Novo habilitado"]],
+   rule:"Fluxo <code>P1.1 → P1.3</code> · permissão <code>FORNECEDOR_CONSULTAR</code>"},
+
+  {kicker:"Passo 2 · Tela 11.2", title:"Selecionar um fornecedor",
+   lead:"As ações acima da tabela dependem da seleção e do status.", url:"/admin/fornecedores?status=todos",
+   imgs:[["YI1YC",0],["sNwCE",1.9]],
+   steps:[[0.3,"Clique na linha do fornecedor desejado"],[2.3,"<b>Visualizar</b> e <b>Alterar</b> passam a ficar habilitados"],[3.6,"Fornecedor <b>ATIVO</b> → somente <b>Inativar</b>"],[4.8,"<b>Ativar</b> fica desabilitado"]],
+   acts:[["move",1.1,77,545],["click",1.6,77,545],["hl",2.1,"row1","Fornecedor selecionado","below"],["hl",2.6,"visAlt","Habilitados"],["hl",3.6,"inativar","ATIVO → Inativar","right"],["hl",4.8,"ativar","Indisponível","off right below"]],
+   rule:"Fluxo <code>P2</code> · uma única linha pode ser selecionada"},
+
+  {kicker:"Passo 2 · Tela 11.2", title:"Fornecedor inativo",
+   lead:"Com um fornecedor INATIVO selecionado, as opções se invertem.", url:"/admin/fornecedores?status=todos",
+   imgs:[["sNwCE",0],["jFSGx",1.9]],
+   steps:[[0.3,"Selecione um fornecedor com status <b>INATIVO</b>"],[2.4,"A opção <b>Ativar</b> é habilitada"],[3.6,"<b>Inativar</b> fica desabilitado"]],
+   acts:[["move",1.1,77,649],["click",1.6,77,649],["hl",2.1,"row3","Status INATIVO","below"],["hl",2.6,"ativar","INATIVO → Ativar","right"],["hl",3.6,"inativar","Indisponível","off right below"]],
+   rule:"Regra de habilitação dos botões descrita em <code>P2</code>"},
+
+  {kicker:"Regra de interface · P1.3", title:"Mudou o filtro? Busque de novo",
+   lead:"Novo só é liberado para o resultado de uma busca atual.", url:"/admin/fornecedores",
+   imgs:[["YI1YC",0],["ntrar",3.3]],
+   steps:[[0.3,"Altere qualquer parâmetro depois da busca"],[3.6,"<b>Novo</b> é desabilitado imediatamente"],[4.8,"Clique em <b>Buscar</b> novamente para liberar"]],
+   acts:[["move",1.1,320,267],["click",1.5,320,267],["type",1.8,243,267,"Editora",1.1,3.3],["hl",3.6,"novo","Novo desabilitado","off"],["move",4.6,1324,345],["hl",4.9,"buscar","Nova busca","right below"]],
+   rule:"Critério de aceite <code>CA05</code>"},
+
+  {kicker:"Exceção E3", title:"Nenhum fornecedor encontrado",
+   lead:"A mensagem aparece na própria tela de pesquisa.", url:"/admin/fornecedores",
+   imgs:[["TqnTA",0],["Tq6mc",4.0]],
+   steps:[[0.3,"Busque por um <b>CNPJ</b> que não existe"],[4.3,"O sistema informa que não encontrou fornecedores"],[5.4,"<b>Novo</b> continua habilitado e reaproveita o CNPJ"]],
+   acts:[["move",1.1,1290,267],["click",1.5,1290,267],["type",1.8,1169,267,"98.765.432/0001-10",1.3,4.0],["move",3.4,1324,345],["click",3.8,1324,345],["hl",4.3,"e3","E3 · mensagem na tela de pesquisa","below"],["hl",5.4,"novo","Cadastrar novo"]],
+   rule:"Fluxo de exceção <code>E3</code>"},
+
+  {kicker:"Passo 3 · Tela 11.3", title:"Cadastrar um novo fornecedor",
+   lead:"Dados do fornecedor, telefone e endereço.", url:"/admin/fornecedores/novo",
+   imgs:[["Tq6mc",0],["UBFrv",1.9]],
+   steps:[[0.3,"Clique em <b>Novo</b>"],[2.4,"<b>Código</b> não é editável: é gerado pelo sistema"],[3.5,"O <b>CNPJ</b> pesquisado já vem preenchido"],[4.6,"Todos os campos com * são obrigatórios; só <b>Complemento</b> é opcional"],[5.8,"<b>Salvar</b> valida os dados · <b>Cancelar</b> volta à busca"]],
+   acts:[["move",1.1,872,444],["click",1.6,872,444],["hl",2.4,"codigo","Bloqueado"],["hl",3.5,"cnpj","Vindo da busca","right"],["hl",4.6,"complemento","Opcional"],["move",5.6,1200,829],["hl",5.8,"salvarCancelar","Salvar · Cancelar","right"]],
+   rule:"Fluxos <code>P4 → P6</code> · regras <code>RN0081</code> e <code>RN0082</code>"},
+
+  {kicker:"Exceção E1", title:"Campos obrigatórios vazios",
+   lead:"Nada é perdido: o formulário volta com os dados digitados.", url:"/admin/fornecedores/novo",
+   imgs:[["UBFrv",0],["riIer",2.0]],
+   steps:[[0.3,"Clique em <b>Salvar</b> com campos faltando"],[2.4,"Um alerta resume os campos pendentes"],[3.5,"Cada campo vazio fica destacado em vermelho"],[4.8,"Os dados já preenchidos são <b>mantidos</b>"]],
+   acts:[["move",1.1,1200,829],["click",1.6,1200,829],["hl",2.4,"alertaE1","Resumo dos pendentes","below"],["hl",3.4,"email","E-mail","right"],["hl",3.8,"bairro","Bairro","right"],["hl",4.2,"cep","CEP","below"]],
+   rule:"Critério de aceite <code>CA02</code>"},
+
+  {kicker:"Passo 4 · Alternativo A3", title:"Alterar um fornecedor",
+   lead:"Mesma tela do cadastro, com os dados carregados.", url:"/admin/fornecedores/FOR-000001/editar",
+   imgs:[["sNwCE",0],["rhmoA",1.9]],
+   steps:[[0.3,"Selecione o fornecedor e clique em <b>Alterar</b>"],[2.4,"O <b>Código</b> continua bloqueado"],[3.4,"O <b>status</b> atual é mantido"],[4.4,"Edite os campos e clique em <b>Salvar</b>"]],
+   acts:[["move",1.1,1109,444],["click",1.6,1109,444],["hl",2.4,"codigo","Não editável"],["hl",3.4,[413,97,69,21],"Status mantido","below"],["hl",4.4,"razaoCad","Editar","right"],["move",5.4,1200,829],["click",5.9,1200,829]],
+   rule:"Fluxo <code>A2 → A3</code> · permissão <code>FORNECEDOR_ALTERAR</code>"},
+
+  {kicker:"Alternativo A1", title:"Visualizar um fornecedor",
+   lead:"Consulta completa, sem risco de alteração.", url:"/admin/fornecedores/FOR-000001",
+   imgs:[["sNwCE",0],["g4pE53",1.9]],
+   steps:[[0.3,"Selecione o fornecedor e clique em <b>Visualizar</b>"],[2.4,"Todos os campos aparecem em modo <b>somente leitura</b>"],[3.6,"O status do fornecedor é exibido"],[4.8,"<b>Cancelar</b> volta à busca"]],
+   acts:[["move",1.1,988,444],["click",1.6,988,444],["hl",2.4,"form","Somente leitura","below"],["hl",3.6,[452,97,69,21],"Status","below"],["move",4.6,1205,829],["hl",4.8,"cancelarVis","Volta à busca","right"]],
+   rule:"Fluxo <code>A2 → A1</code>"},
+
+  {kicker:"Passo 5 · Tela 11.4", title:"Inativar um fornecedor",
+   lead:"Fornecedores não são excluídos: são inativados com motivo.", url:"/admin/fornecedores",
+   imgs:[["sNwCE",0],["qZTdr",1.9]],
+   steps:[[0.3,"Com um fornecedor <b>ATIVO</b>, clique em <b>Inativar</b>"],[2.4,"Escolha a <b>categoria</b> de inativação"],[3.4,"Escreva a <b>justificativa</b> (até 255 caracteres)"],[4.6,"<b>Confirmar</b> conclui · <b>Cancelar</b> volta à busca"]],
+   acts:[["move",1.1,1222,444],["click",1.6,1222,444],["hl",2.4,"categoria","Categoria *","left"],["hl",3.4,"justificativa","Justificativa *","left"],["move",4.6,922,588],["hl",4.8,"confirmar","Confirmar","right below"],["click",5.6,922,588]],
+   rule:"Inativo não pode ser usado em entrada em estoque (<code>RN0086</code>)"},
+
+  {kicker:"Exceção E4", title:"Categoria ou justificativa em branco",
+   lead:"A operação só é concluída com os dois campos informados.", url:"/admin/fornecedores",
+   imgs:[["SHCD9",0]],
+   steps:[[0.3,"Clicar em <b>Confirmar</b> sem justificativa…"],[2.0,"…exibe a mensagem indicando o campo"],[3.0,"O campo pendente é destacado; corrija e confirme"]],
+   acts:[["move",1.1,922,667],["click",1.6,922,667],["hl",2.0,"alertaE4","Campo não informado","left"],["hl",3.0,"justE4","Obrigatório","left"]],
+   rule:"Critério de aceite <code>CA06</code>"},
+
+  {kicker:"Passo 6 · Tela 11.4", title:"Ativar um fornecedor",
+   lead:"A mesma tela, com as categorias de ativação.", url:"/admin/fornecedores",
+   imgs:[["jFSGx",0],["f5rLwV",1.9]],
+   steps:[[0.3,"Com um fornecedor <b>INATIVO</b>, clique em <b>Ativar</b>"],[2.4,"Escolha a <b>categoria</b> de ativação"],[3.4,"Informe a <b>justificativa</b>"],[4.6,"<b>Confirmar</b> volta a liberar o fornecedor para o estoque"]],
+   acts:[["move",1.1,1332,444],["click",1.6,1332,444],["hl",2.4,"categoria","Categoria *","left"],["hl",3.4,"justificativa","Justificativa *","left"],["move",4.6,922,588],["hl",4.8,"confirmar","Confirmar","right below"]],
+   rule:"Fluxo <code>A5</code> · permissão <code>FORNECEDOR_ATIVAR</code>"}
+];
+
+const slidesEl = document.getElementById('slides');
+let kfId = 0;
+const css = document.createElement('style'); document.head.appendChild(css);
+
+function cursorSVG(){return `<svg viewBox="0 0 24 24" width="48" height="48"><path d="M4 2l15 11-6.5 1.2L16.8 21l-3 1.4-3.6-6.6L5 20z" fill="#111827" stroke="#fff" stroke-width="1.8" stroke-linejoin="round"/></svg>`}
+
+function buildDemo(d){
+  const end = Math.max(...d.acts.map(a=>a[1]), ...d.steps.map(s=>s[0])) + 1.2;
+  const h = Math.max(...d.imgs.map(([id])=>H[id]));
+  const s = document.createElement('section'); s.className='slide';
+  const steps = d.steps.map(([t,txt],i)=>`<li class="anim" style="animation-delay:${t}s"><span class="num">${i+1}</span><span>${txt}</span></li>`).join('');
+  let ov = '';
+  d.imgs.forEach(([id,t],i)=>{ ov += `<img src="${IMG(id)}" alt="" class="${i?'swap anim':''}" style="${i?`animation-delay:${t}s`:''}">`; });
+  // cursor keyframes
+  const moves = d.acts.filter(a=>a[0]==='move');
+  let px=720,py=700; const frames=[`0%{transform:translate(${px}px,${py}px)}`];
+  moves.forEach(([,t,x,y])=>{const t0=Math.max(0,t-0.8);frames.push(`${(t0/end*100).toFixed(2)}%{transform:translate(${px}px,${py}px)}`);frames.push(`${(t/end*100).toFixed(2)}%{transform:translate(${x}px,${y}px)}`);px=x;py=y;});
+  frames.push(`100%{transform:translate(${px}px,${py}px)}`);
+  const kf='cur'+(kfId++); css.textContent += `@keyframes ${kf}{${frames.join('')}}`;
+  d.acts.forEach(a=>{
+    const [type,t]=a;
+    if(type==='click') ov += `<div class="ripple anim" style="left:${a[2]}px;top:${a[3]}px;animation-delay:${t}s"></div>`;
+    if(type==='hl'){const b=Array.isArray(a[2])?a[2]:BOX[a[2]];const p=6;
+      ov += `<div class="hl anim ${a[4]||''}" style="left:${b[0]-p}px;top:${b[1]-p}px;width:${b[2]+2*p}px;height:${b[3]+2*p}px;animation-delay:${t}s,${t+.45}s"><span class="tag">${a[3]}</span></div>`;}
+    if(type==='type'){const [, , x,y,txt,dur,until]=a;
+      ov += `<span class="typed anim" style="left:${x}px;top:${y}px;animation-duration:${dur}s,.25s;animation-delay:${t}s,${until}s;animation-timing-function:steps(${txt.length}),ease">${txt}</span>`;}
+  });
+  ov += `<div class="cursor anim" style="animation-name:${kf};animation-duration:${end}s">${cursorSVG()}</div>`;
+  s.innerHTML = `<div class="demo">
+    <aside class="side"><div class="kicker">${d.kicker}</div><h2>${d.title}</h2><p class="lead">${d.lead}</p><ol class="steps">${steps}</ol><div class="rule">${d.rule}</div></aside>
+    <div class="stagewrap"><div class="browser"><div class="bar"><i></i><i></i><i></i><span>livraria.local${d.url}</span></div>
+      <div class="viewport" style="height:${Math.round(h*SCALE)}px"><div class="screen" style="height:${h}px;transform:scale(${SCALE})">${ov}</div></div></div></div></div>`;
+  s.dataset.dur = end;
+  return s;
+}
+
+const cover = `<section class="slide dark"><div class="cover">
+  <div><div class="kicker rise anim" style="animation-delay:.1s">CDU01 · E-commerce de Livros · LES 2026</div>
+  <h1 class="rise anim" style="animation-delay:.25s">Manter Cadastro de Fornecedores</h1>
+  <p class="rise anim" style="animation-delay:.45s">Guia de uso das telas: buscar, cadastrar, alterar, visualizar, inativar e ativar fornecedores.</p>
+  <div class="meta rise anim" style="animation-delay:.65s"><span class="chip">RF0081 – RF0085</span><span class="chip">RN0081 – RN0086</span><span class="chip">Telas 11.1 – 11.4</span></div></div>
+  <div class="stack">
+    <img class="anim" src="${IMG('qZTdr')}" style="left:220px;top:380px;rotate:4deg;animation-delay:.7s,.7s" alt="">
+    <img class="anim" src="${IMG('UBFrv')}" style="left:120px;top:190px;rotate:-2deg;animation-delay:.5s,1.4s" alt="">
+    <img class="anim" src="${IMG('sNwCE')}" style="left:0;top:0;rotate:-6deg;animation-delay:.3s,2.1s" alt="">
+  </div></div></section>`;
+
+const flow = `<section class="slide"><div class="flow">
+  <h2 class="rise anim">Como o cadastro funciona</h2>
+  <p class="lead rise anim" style="animation-delay:.15s">Tudo começa pela busca. Cada operação termina voltando para ela.</p>
+  <div class="lanes">
+    <div class="node anim" style="animation-delay:.4s"><small>Tela 11.1</small><strong>Buscar</strong><p>Filtros combináveis + Status</p></div>
+    <div class="arrow anim" style="animation-delay:.9s"></div>
+    <div class="node anim" style="animation-delay:1.2s"><small>Tela 11.2</small><strong>Resultado</strong><p>Selecione um fornecedor na tabela</p></div>
+    <div class="arrow anim" style="animation-delay:1.7s"></div>
+    <div class="acts">
+      <div class="act anim" style="animation-delay:2.0s">➕ Novo <em>após a busca</em></div>
+      <div class="act anim" style="animation-delay:2.2s">👁 Visualizar <em>com seleção</em></div>
+      <div class="act anim" style="animation-delay:2.4s">✏️ Alterar <em>com seleção</em></div>
+      <div class="act anim" style="animation-delay:2.6s">⛔ Inativar <em>se ATIVO</em></div>
+      <div class="act anim" style="animation-delay:2.8s">✅ Ativar <em>se INATIVO</em></div>
+    </div>
+    <div class="arrow anim" style="animation-delay:3.2s"></div>
+    <div class="targets">
+      <div class="node anim" style="animation-delay:3.5s"><small>Tela 11.3</small><strong>Cadastro</strong><p>Inclusão · Alteração · Visualização</p></div>
+      <div class="node anim" style="animation-delay:3.8s"><small>Tela 11.4</small><strong>Inativação / Ativação</strong><p>Categoria + justificativa</p></div>
+    </div>
+  </div>
+  <div class="back anim" style="animation-delay:4.4s">↩ Salvar, Confirmar ou Cancelar <b>voltam à busca (P1.2)</b></div>
+</div></section>`;
+
+const rules = `<section class="slide"><div class="rules">
+  <h2 class="rise anim">Resumo das regras</h2>
+  <div class="cards">
+    <div class="card anim" style="animation-delay:.3s"><h3>Quando cada botão aparece</h3><table>
+      <tr><td>Novo</td><td>depois de uma busca, sem alterar filtros</td></tr>
+      <tr><td>Visualizar / Alterar</td><td>com um fornecedor selecionado</td></tr>
+      <tr><td>Inativar</td><td>somente status ATIVO</td></tr>
+      <tr><td>Ativar</td><td>somente status INATIVO</td></tr></table></div>
+    <div class="card anim" style="animation-delay:.6s"><h3>Permissões de acesso</h3><ul>
+      <li><code>FORNECEDOR_CONSULTAR</code></li><li><code>FORNECEDOR_INCLUIR</code></li><li><code>FORNECEDOR_ALTERAR</code></li>
+      <li><code>FORNECEDOR_INATIVAR</code></li><li><code>FORNECEDOR_ATIVAR</code></li></ul></div>
+    <div class="card warn anim" style="animation-delay:.9s"><h3>Fica para a entrega final</h3><ul>
+      <li>Persistência dos dados (P8)</li><li>CNPJ único · erro E2 (P7)</li><li>Geração do código (RNF0081)</li><li>Log de transação (RNF0012)</li><li>Resposta em até 1 s (RNF0011)</li></ul></div>
+  </div></div></section>`;
+
+const closing = `<section class="slide dark"><div class="cover" style="grid-template-columns:1fr">
+  <div><div class="kicker rise anim">Próximas etapas</div>
+  <h1 class="rise anim" style="animation-delay:.2s">Front-end pronto para evoluir</h1>
+  <p class="rise anim" style="animation-delay:.4s">As telas desta etapa são a base do trabalho final: implementação com banco de dados, aplicação dos design patterns da disciplina e diagramas de classes e de sequência do CDU01.</p>
+  <div class="meta rise anim" style="animation-delay:.6s"><span class="chip">← → navegar</span><span class="chip">R repetir animação</span><span class="chip">F tela cheia</span></div></div></div></section>`;
+
+slidesEl.insertAdjacentHTML('beforeend', cover + flow);
+demos.forEach(d=>slidesEl.appendChild(buildDemo(d)));
+slidesEl.insertAdjacentHTML('beforeend', rules + closing);
+
+const slides=[...slidesEl.children]; let cur=0;
+const stage=document.getElementById('stage');
+function fit(){const k=Math.min(innerWidth/1920,innerHeight/1080);stage.style.transform=`scale(${k})`}
+addEventListener('resize',fit);fit();
+function run(el){el.classList.remove('run');void el.offsetWidth;el.classList.add('run')}
+function go(i){
+  i=Math.max(0,Math.min(slides.length-1,i)); if(i===cur && slides[cur].classList.contains('active')) return;
+  slides[cur].classList.remove('active','run');
+  cur=i; const el=slides[cur]; el.classList.add('active'); run(el);
+  document.body.classList.toggle('dark',el.classList.contains('dark'));
+  stage.classList.toggle('dark',el.classList.contains('dark'));
+  document.getElementById('count').textContent=`${cur+1} / ${slides.length}`;
+  document.getElementById('progress').style.width=`${(cur+1)/slides.length*100}%`;
+  try{history.replaceState(null,'','#'+(cur+1))}catch(e){}
+}
+document.getElementById('prev').onclick=()=>go(cur-1);
+document.getElementById('next').onclick=()=>go(cur+1);
+document.getElementById('replay').onclick=()=>run(slides[cur]);
+addEventListener('keydown',e=>{
+  if(['ArrowRight','PageDown',' '].includes(e.key)){e.preventDefault();go(cur+1)}
+  else if(['ArrowLeft','PageUp'].includes(e.key)){e.preventDefault();go(cur-1)}
+  else if(e.key==='Home')go(0); else if(e.key==='End')go(slides.length-1);
+  else if(e.key.toLowerCase()==='r')run(slides[cur]);
+  else if(e.key.toLowerCase()==='f'){document.fullscreenElement?document.exitFullscreen():document.documentElement.requestFullscreen?.()}
+});
+addEventListener('hashchange',()=>{const n=parseInt(location.hash.slice(1))-1;if(!isNaN(n)&&n!==cur)go(n)});
+const start=parseInt(location.hash.slice(1))-1;
+slides[0].classList.add('active'); cur=0; go(isNaN(start)?0:start); if(!start||isNaN(start)) run(slides[0]);
+document.getElementById('count').textContent=`${cur+1} / ${slides.length}`;
+document.getElementById('progress').style.width=`${(cur+1)/slides.length*100}%`;
+stage.classList.toggle('dark',slides[cur].classList.contains('dark'));
+</script>
+</body>
+</html>

@@ -1,0 +1,4 @@
+*.pen binary
+*.png binary
+*.docx binary
+* text=auto
