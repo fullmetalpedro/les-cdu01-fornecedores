@@ -10,7 +10,8 @@ src/
 ├── cadastro.html            (B) Tela 11.3 – inclusão, alteração e visualização
 ├── css/
 │   ├── estilo.css           (A) Base visual: cores, fonte, topbar, botões, campos, badge, tabela
-│   └── cadastro.css         (B) Estilos específicos do formulário e do modal (opcional)
+│   ├── cadastro.css         (B) Estilos específicos do formulário da tela 11.3
+│   └── status.css           (B) Estilos do modal 11.4 (carregado por index.html e cadastro.html)
 └── js/
     ├── mock-fornecedores.js (A) Fornecedores fictícios (substitui o banco nesta etapa)
     ├── dominios.js          (B) Tipos de telefone e de logradouro, estados, países, categorias (RNF0013)

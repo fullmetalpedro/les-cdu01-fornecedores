@@ -209,7 +209,9 @@ input[readonly], input:disabled, select:disabled, textarea[readonly] {
 .resultado__contagem { font-size: 14px; font-weight: 600; }
 .resultado__acoes { display: flex; gap: 8px; flex-wrap: wrap; }
 
+.tabela-rolagem { overflow-x: auto; }
 .tabela { width: 100%; border-collapse: collapse; }
+.tabela th, .tabela td { white-space: nowrap; }
 .tabela th {
   height: 42px; padding: 0 12px;
   background: #F8F9FB;
