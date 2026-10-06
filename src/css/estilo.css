@@ -112,6 +112,59 @@ select:has(option[value=""]:checked) { color: var(--muted); }
 select option { color: var(--text); }
 select:disabled { cursor: not-allowed; opacity: 1; }
 
+/*
+ * A lista aberta do <select> é desenhada pelo navegador/SO e ignora CSS comum.
+ * Em navegadores com "customizable select" (Chrome/Edge 135+), base-select libera a
+ * estilização da lista; nos demais, fica a lista nativa com o campo já estilizado.
+ */
+@supports (appearance: base-select) {
+  select,
+  select::picker(select) { appearance: base-select; }
+
+  select {
+    display: flex;
+    align-items: center;
+    padding-right: 12px;
+    background-image: none;
+  }
+  select::picker-icon {
+    content: "";
+    width: 16px;
+    height: 16px;
+    margin-left: auto;
+    background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%235E6A7A' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") no-repeat center / 16px;
+    transition: rotate .2s ease;
+  }
+  select:open::picker-icon { rotate: 180deg; }
+  select:open { border-color: var(--primary); box-shadow: 0 0 0 2px var(--primary-soft); }
+
+  select::picker(select) {
+    margin-top: 4px;
+    padding: 4px;
+    max-height: 280px;
+    overflow-y: auto;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    box-shadow: 0 12px 32px -8px rgba(15, 27, 43, .25);
+  }
+  select option {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 10px;
+    border-radius: 6px;
+    font-size: 14px;
+    color: var(--text);
+    cursor: pointer;
+  }
+  select option:hover,
+  select option:focus-visible { background: var(--primary-soft); color: var(--primary); outline: none; }
+  select option:checked { font-weight: 600; color: var(--primary); }
+  select option::checkmark { order: 1; margin-left: auto; color: var(--primary); }
+  select option[value=""] { color: var(--muted); }
+}
+
 input:focus, select:focus, textarea:focus {
   outline: none;
   border-color: var(--primary);
