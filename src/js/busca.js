@@ -183,13 +183,13 @@
     window.location.href = `cadastro.html?${params}`;
   }
 
-  // A4/A5 são da Pessoa B (js/status.js). Stub enquanto a função não existir.
+  // A4/A5: o modal é da Pessoa B (js/status.js)
   function abrirStatus(operacao) {
-    if (typeof window.abrirModalStatus === "function") {
-      window.abrirModalStatus(selecionado, operacao, buscar); // A4.5/A5.5: volta a P1.2
-    } else {
-      console.log(`[stub] abrirModalStatus(${selecionado.codigo}, "${operacao}") – aguardando js/status.js da Pessoa B`);
-    }
+    const fornecedor = selecionado;
+    abrirModalStatus(fornecedor, operacao, ({ novoStatus }) => {
+      atualizarStatusFornecedor(fornecedor.codigo, novoStatus); // A4.4 / A5.4
+      buscar(); // A4.5 / A5.5: volta a P1.2
+    });
   }
 
   // P1.2 / P8.4 / A1.2: ao voltar para a busca, os últimos parâmetros são reapresentados

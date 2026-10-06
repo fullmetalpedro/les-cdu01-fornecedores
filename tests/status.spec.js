@@ -48,6 +48,56 @@ test.describe("11.4 Inativar (A4)", () => {
   });
 });
 
+test.describe("Atualização do status (A4.4 / A5.4)", () => {
+  async function confirmar(page) {
+    await page.locator("#cboCategoria").selectOption({ index: 1 });
+    await page.locator("#txtJustificativa").fill("Justificativa de teste.");
+    await page.locator("#btnConfirmarStatus").click();
+  }
+  const badge = (page, codigo) => page.locator(`#tblResultado tr[data-codigo="${codigo}"] .badge`);
+
+  test("inativar muda o status na tabela e passa a habilitar Ativar", async ({ page }) => {
+    await abrirModal(page, "FOR-000001", "inativar");
+    await confirmar(page);
+    await expect(badge(page, "FOR-000001")).toHaveText("INATIVO");
+    await selecionar(page, "FOR-000001");
+    await expect(page.locator("#btnAtivar")).toBeEnabled();
+    await expect(page.locator("#btnInativar")).toBeDisabled();
+  });
+
+  test("ativar muda o status na tabela", async ({ page }) => {
+    await abrirModal(page, "FOR-000003", "ativar");
+    await confirmar(page);
+    await expect(badge(page, "FOR-000003")).toHaveText("ATIVO");
+  });
+
+  test("o novo status vale na visualização e após recarregar a busca", async ({ page }) => {
+    await abrirModal(page, "FOR-000002", "inativar");
+    await confirmar(page);
+    await page.goto("/cadastro.html?modo=visualizar&codigo=FOR-000002");
+    await expect(page.locator("#statusBadge")).toHaveText("INATIVO");
+    await page.goto("/index.html");
+    await buscar(page);
+    await expect(badge(page, "FOR-000002")).toHaveText("INATIVO");
+  });
+
+  test("filtro por status considera o status atualizado", async ({ page }) => {
+    await abrirModal(page, "FOR-000001", "inativar");
+    await confirmar(page);
+    await page.locator("#cboStatus").selectOption("INATIVO");
+    await buscar(page);
+    await expect(badge(page, "FOR-000001")).toHaveText("INATIVO");
+    await expect(page.locator("#tblResultado tbody tr")).toHaveCount(3);
+  });
+
+  test("Cancelar não altera o status", async ({ page }) => {
+    await abrirModal(page, "FOR-000001", "inativar");
+    await page.locator("#btnCancelarStatus").click();
+    await buscar(page);
+    await expect(badge(page, "FOR-000001")).toHaveText("ATIVO");
+  });
+});
+
 test.describe("11.4 Ativar (A5)", () => {
   test("usa o título e as categorias de ativação", async ({ page }) => {
     await abrirModal(page, "FOR-000003", "ativar");
