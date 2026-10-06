@@ -1,0 +1,172 @@
+/* Base visual compartilhada (Pessoa A) – tokens do design em design/fornecedores.pen */
+:root {
+  --bg: #F4F5F7;
+  --surface: #FFFFFF;
+  --border: #D5DAE1;
+  --text: #1B2430;
+  --muted: #5E6A7A;
+  --primary: #1F4E79;
+  --primary-soft: #E8EFF6;
+  --danger: #B42318;
+  --danger-soft: #FEF3F2;
+  --success: #067647;
+  --success-soft: #ECFDF3;
+  --disabled: #EEF0F3;
+  --disabled-text: #A0A8B4;
+  --readonly: #F1F3F6;
+  --radius: 6px;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: Inter, system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-size: 14px;
+}
+
+h1, h2 { margin: 0; }
+
+.sr-only {
+  position: absolute; width: 1px; height: 1px; overflow: hidden;
+  clip: rect(0 0 0 0); white-space: nowrap;
+}
+
+/* ---------- Topbar (P3) ---------- */
+.topbar {
+  height: 60px;
+  padding: 0 32px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+}
+.topbar__marca { display: flex; align-items: center; gap: 10px; font-size: 16px; }
+.topbar__area { color: var(--muted); font-size: 14px; }
+.topbar__usuario { display: flex; align-items: center; gap: 10px; }
+.topbar__usuario-info { display: flex; flex-direction: column; align-items: flex-end; }
+.topbar__nome { font-size: 13px; font-weight: 600; }
+.topbar__perfil { font-size: 12px; color: var(--muted); }
+.topbar__avatar {
+  width: 34px; height: 34px; border-radius: 50%;
+  display: grid; place-items: center;
+  background: var(--primary-soft); color: var(--primary);
+  font-size: 13px; font-weight: 700;
+}
+
+/* ---------- Layout ---------- */
+.conteudo { padding: 32px 40px 48px; display: flex; flex-direction: column; gap: 24px; }
+.cabecalho h1 { font-size: 26px; font-weight: 700; }
+.cabecalho p { margin: 4px 0 0; color: var(--muted); }
+
+.painel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+}
+.painel__titulo { font-size: 15px; font-weight: 600; }
+
+/* ---------- Campos ---------- */
+.busca { padding: 24px; display: flex; flex-direction: column; gap: 16px; }
+.linha { display: flex; gap: 16px; }
+.linha--base { align-items: flex-end; }
+
+.campo { display: flex; flex-direction: column; gap: 6px; }
+.campo label { font-size: 13px; font-weight: 500; }
+.campo--cresce { flex: 1; min-width: 0; }
+.campo--codigo { width: 150px; }
+.campo--fantasia { width: 280px; }
+.campo--cnpj { width: 220px; }
+.campo--combo { width: 180px; }
+
+.obrigatorio { color: var(--danger); }
+
+input, select, textarea {
+  height: 38px;
+  padding: 0 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+  color: var(--text);
+  font: inherit;
+}
+input:focus, select:focus, textarea:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 2px var(--primary-soft);
+}
+input[readonly], input:disabled, select:disabled, textarea[readonly] {
+  background: var(--readonly);
+  color: var(--muted);
+}
+
+/* ---------- Botões ---------- */
+.botao {
+  height: 36px;
+  padding: 0 16px;
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+  color: var(--text);
+  font: inherit; font-weight: 600;
+  cursor: pointer;
+}
+.botao:hover:not(:disabled) { background: var(--primary-soft); }
+.botao--primario { background: var(--primary); border-color: var(--primary); color: #fff; }
+.botao--primario:hover:not(:disabled) { background: #183F62; }
+.botao--perigo { color: var(--danger); }
+.botao--sucesso { color: var(--success); }
+.botao:disabled {
+  background: var(--disabled);
+  border-color: var(--disabled);
+  color: var(--disabled-text);
+  cursor: not-allowed;
+}
+
+/* ---------- Resultado (11.2) ---------- */
+.resultado { overflow: hidden; }
+.resultado__barra {
+  padding: 16px 20px;
+  display: flex; align-items: center; justify-content: space-between; gap: 16px;
+  border-bottom: 1px solid var(--border);
+}
+.resultado__contagem { font-size: 14px; font-weight: 600; }
+.resultado__acoes { display: flex; gap: 8px; flex-wrap: wrap; }
+
+.tabela { width: 100%; border-collapse: collapse; }
+.tabela th {
+  height: 42px; padding: 0 12px;
+  background: #F8F9FB;
+  border-bottom: 1px solid var(--border);
+  text-align: left;
+  font-size: 11px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase;
+  color: var(--muted);
+}
+.tabela td { height: 52px; padding: 0 12px; border-bottom: 1px solid var(--border); color: var(--muted); }
+.tabela tbody tr:last-child td { border-bottom: 0; }
+.tabela tbody tr { cursor: pointer; }
+.tabela tbody tr:hover { background: #F8FAFC; }
+.tabela tbody tr.selecionado { background: var(--primary-soft); }
+.tabela td.razao { color: var(--text); font-weight: 500; }
+.col-selecao { width: 48px; }
+.tabela input[type="radio"] { width: 18px; height: 18px; padding: 0; accent-color: var(--primary); cursor: pointer; }
+
+.badge {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 3px 10px; border-radius: 999px;
+  font-size: 12px; font-weight: 600;
+}
+.badge::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+.badge--ativo { background: var(--success-soft); color: var(--success); }
+.badge--inativo { background: var(--disabled); color: var(--muted); }
+
+.mensagem {
+  padding: 56px 20px;
+  display: flex; flex-direction: column; align-items: center; gap: 8px;
+  color: var(--muted); text-align: center;
+}
+.mensagem strong { color: var(--text); font-size: 16px; }
