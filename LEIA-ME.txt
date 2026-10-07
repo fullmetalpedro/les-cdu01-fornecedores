@@ -1,0 +1,50 @@
+CDU01 - MANTER CADASTRO DE FORNECEDORES
+E-commerce de Livros - LES / FATEC 2026 - 1a etapa (front-end)
+
+AUTORES
+-------
+Pedro Paulo Sousa de Carlo - telas 11.1 Busca e 11.2 Resultado
+Pedro Araujo               - telas 11.3 Cadastro e 11.4 Inativacao/Ativacao
+
+Repositorio: https://github.com/fullmetalpedro/les-cdu01-fornecedores
+
+COMO RODAR
+----------
+Opcao 1 (mais simples): de dois cliques em  src/index.html
+  O sistema abre no navegador. Nao precisa instalar nada.
+
+Opcao 2 (servidor local, se preferir): no terminal, dentro desta pasta:
+  python -m http.server 8770 -d src
+  e abra http://localhost:8770/index.html
+
+Navegador recomendado: Chrome ou Edge atualizados.
+Com internet, a fonte Inter e os icones (Lucide) carregam por CDN;
+sem internet o sistema funciona, mas sem os icones e com a fonte padrao.
+
+TELAS (secao 11 da especificacao)
+---------------------------------
+11.1 Busca e 11.2 Resultado  ->  src/index.html
+11.3 Cadastro (inclusao, alteracao e visualizacao)  ->  src/cadastro.html
+11.4 Inativacao e Ativacao  ->  modal aberto a partir da busca
+
+ROTEIRO RAPIDO DE TESTE
+-----------------------
+1. Clique em Buscar sem filtros: 6 fornecedores ficticios (4 ativos, 2 inativos).
+2. Selecione um fornecedor ATIVO: Visualizar, Alterar e Inativar habilitam.
+   Selecione um INATIVO: Ativar habilita e Inativar nao.
+3. Altere qualquer filtro depois da busca: Novo fica desabilitado ate nova busca.
+4. Busque o CNPJ 98.765.432/0001-10: aparece o E3 e o Novo leva o CNPJ ao cadastro.
+5. No cadastro, clique em Salvar com campos vazios: E1 destaca os obrigatorios.
+6. Inative/ative um fornecedor sem justificativa: E4. Com categoria e
+   justificativa, o status e atualizado na tabela.
+
+OBSERVACOES
+-----------
+- Nesta etapa nao ha back-end: fornecedores e dominios estao em src/js
+  (mock-fornecedores.js e dominios.js). Alteracoes de status valem ate
+  fechar a aba do navegador.
+- Fora do escopo desta etapa, conforme o enunciado: persistencia (P8),
+  CNPJ unico (P7/E2), geracao do codigo (RNF0081), log (RNF0012) e
+  tempo de resposta (RNF0011).
+- Apresentacao de uso do sistema: abra apresentacao/index.html
+  (setas do teclado navegam; R repete a animacao; F tela cheia).

@@ -73,8 +73,6 @@ src/js/mock-fornecedores.js e src/js/busca.js.
 
 ## Restrições
 - NÃO inclua campos, telas, botões, mensagens ou comportamentos que não estejam nos documentos.
-- Se encontrar uma ambiguidade, NÃO resolva por suposição: registre em docs/ambiguidades.md e
-  siga a decisão provisória que está lá.
 - NÃO implemente nada que esteja fora do escopo: P7/E2, P8, RNF0011 (medição), RNF0012 e a
   geração de código (RNF0081).
 - Use os nomes de campos, IDs e name do contrato. Eles serão reaproveitados no back-end.
@@ -94,8 +92,7 @@ src/js/mock-fornecedores.js e src/js/busca.js.
 - [ ] Os requisitos estão citados em comentários no código.
 - [ ] Os estados batem com design/telas-png/01 a 06.
 
-Ao terminar, liste quais requisitos (RF, RNF, RN e passos do UC) foram atendidos e onde, e
-quais ambiguidades foram registradas.
+Ao terminar, liste quais requisitos (RF, RNF, RN e passos do UC) foram atendidos e onde.
 ```
 
 ## Telas de referência

@@ -68,7 +68,7 @@ const dominios = {
 
 Cada item de domínio tem `codigo` e `nome` (estados usam `sigla` e `nome`). **O fornecedor guarda sempre o código** (`"COMERCIAL"`, `"RUA"`, `"BR"`, `"SP"`), e o combobox exibe o nome. Assim o valor já é a chave da tabela de domínio no back-end.
 
-Os documentos não definem os valores das categorias. Use valores de exemplo e registre isso em [ambiguidades.md](ambiguidades.md).
+Os documentos não definem os valores das categorias; os valores atuais são de exemplo.
 
 ## 4. Padrão de IDs e de `name`
 

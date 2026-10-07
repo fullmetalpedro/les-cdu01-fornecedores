@@ -2,8 +2,8 @@
 // implantação vai criar (tipos de telefone, tipos de logradouro, estados, países
 // e categorias de inativação/ativação de fornecedores).
 //
-// Ambiguidade #4 (docs/ambiguidades.md): os documentos não definem os nomes das
-// categorias de inativação e de ativação. Os valores abaixo são de exemplo.
+// Os documentos não definem os nomes das categorias de inativação e de ativação;
+// os valores abaixo são de exemplo.
 const dominios = {
   tiposTelefone: [
     { codigo: "COMERCIAL", nome: "Comercial" },
