@@ -50,7 +50,7 @@ html,body{margin:0;height:100%;background:var(--bg);font-family:Inter,system-ui,
 .screen img.swap{animation:fadeIn .45s ease both}
 
 /* overlays (screen coordinates, 1440px base) */
-.hl{position:absolute;border:3px solid var(--hl);border-radius:10px;animation:hlIn .45s cubic-bezier(.2,.9,.3,1.3) both,pulse 1.8s ease-in-out infinite;pointer-events:none}
+.hl{position:absolute;border:3px solid var(--hl);border-radius:10px;animation:hlIn .45s cubic-bezier(.2,.9,.3,1.3) both,pulse 1.2s ease-out 1;pointer-events:none}
 .hl.off{border-style:dashed;border-color:var(--bad)}
 .hl .tag{position:absolute;left:-3px;bottom:calc(100% + 8px);white-space:nowrap;background:var(--hl);color:var(--hl-ink);font-size:17px;font-weight:700;padding:6px 12px;border-radius:8px;box-shadow:0 6px 16px rgba(0,0,0,.18)}
 .hl.below .tag{bottom:auto;top:calc(100% + 8px)}
@@ -62,13 +62,13 @@ html,body{margin:0;height:100%;background:var(--bg);font-family:Inter,system-ui,
 .ripple{position:absolute;width:56px;height:56px;border-radius:50%;background:rgba(37,99,235,.55);border:2px solid var(--hl);animation:ripple .65s ease-out both;pointer-events:none}
 .cursor{position:absolute;left:-6px;top:-3px;width:48px;height:48px;filter:drop-shadow(0 3px 4px rgba(0,0,0,.35));animation-timing-function:cubic-bezier(.45,0,.25,1);animation-fill-mode:both;z-index:5}
 
-/* ---------- cover / closing ---------- */
-.cover{height:100%;background:radial-gradient(1200px 700px at 85% 20%,#24507D 0%,transparent 60%),linear-gradient(135deg,#0F1B2B,#16314F);color:#fff;display:grid;grid-template-columns:1fr 1fr;align-items:center;padding:0 120px;gap:40px}
-.cover .kicker{color:#93C5FD}
+/* ---------- capa ---------- */
+.cover{height:100%;background:var(--paper);color:var(--ink);display:grid;grid-template-columns:1fr 1fr;align-items:center;padding:0 120px;gap:40px}
+.cover .kicker{color:var(--primary-2)}
 .cover h1{font-size:88px;line-height:1;margin:18px 0 26px;letter-spacing:-.03em}
-.cover p{font-size:24px;line-height:1.5;color:#C7D4E5;margin:0;max-width:720px}
+.cover p{font-size:24px;line-height:1.5;color:var(--muted);margin:0;max-width:720px}
 .cover .meta{margin-top:40px;display:flex;gap:12px;flex-wrap:wrap}
-.chip{border:1px solid rgba(255,255,255,.25);border-radius:999px;padding:8px 16px;font-size:16px;color:#DCE6F2}
+.chip{border:1px solid #CBD2DB;background:#fff;border-radius:999px;padding:8px 16px;font-size:16px;color:var(--ink)}
 .stack{position:relative;height:720px}
 .stack img{position:absolute;width:640px;border-radius:12px;box-shadow:0 30px 60px rgba(0,0,0,.45);animation:rise .9s cubic-bezier(.2,.8,.2,1) both,float 6s ease-in-out infinite}
 .rise{animation:rise .8s cubic-bezier(.2,.8,.2,1) both}
@@ -111,7 +111,6 @@ html,body{margin:0;height:100%;background:var(--bg);font-family:Inter,system-ui,
 #hud button:hover{background:var(--soft)}
 #hud .count{margin-left:auto;font-size:15px;font-weight:600;color:var(--muted);background:rgba(255,255,255,.85);padding:6px 12px;border-radius:8px}
 #progress{position:absolute;left:0;bottom:0;height:5px;background:var(--hl);transition:width .5s ease;z-index:21}
-.dark #hud .count{background:rgba(255,255,255,.12);color:#DCE6F2}
 
 /* ---------- keyframes ---------- */
 .ic{width:20px;height:20px;stroke-width:2.2;flex:none;vertical-align:-4px}
@@ -125,7 +124,7 @@ html,body{margin:0;height:100%;background:var(--bg);font-family:Inter,system-ui,
 @keyframes numOn{from{background:#E5E8ED;color:#5E6A7A}to{background:#1F4E79;color:#fff}}
 @keyframes hlIn{from{opacity:0;transform:scale(1.18)}to{opacity:1;transform:scale(1)}}
 @keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(37,99,235,.55)}50%{box-shadow:0 0 0 12px rgba(37,99,235,0)}}
-@keyframes ripple{0%{opacity:1;transform:translate(-50%,-50%) scale(.2)}100%{opacity:0;transform:translate(-50%,-50%) scale(2)}}
+@keyframes ripple{0%{opacity:0;transform:translate(-50%,-50%) scale(.2)}1%{opacity:1}100%{opacity:0;transform:translate(-50%,-50%) scale(2)}}
 @keyframes typing{from{clip-path:inset(0 100% 0 0)}to{clip-path:inset(0 0 0 0)}}
 @keyframes blink{50%{opacity:0}}
 @keyframes rise{from{opacity:0;transform:translateY(28px)}to{opacity:1;transform:none}}
@@ -287,7 +286,7 @@ function buildDemo(d){
   return s;
 }
 
-const cover = `<section class="slide dark"><div class="cover">
+const cover = `<section class="slide"><div class="cover">
   <div><div class="kicker rise anim" style="animation-delay:.1s">CDU01 · E-commerce de Livros · LES 2026</div>
   <h1 class="rise anim" style="animation-delay:.25s">Manter Cadastro de Fornecedores</h1>
   <p class="rise anim" style="animation-delay:.45s">Guia de uso das telas: buscar, cadastrar, alterar, visualizar, inativar e ativar fornecedores.</p>
@@ -337,15 +336,9 @@ const rules = `<section class="slide"><div class="rules">
       <li>Persistência dos dados (P8)</li><li>CNPJ único · erro E2 (P7)</li><li>Geração do código (RNF0081)</li><li>Log de transação (RNF0012)</li><li>Resposta em até 1 s (RNF0011)</li></ul></div>
   </div></div></section>`;
 
-const closing = `<section class="slide dark"><div class="cover" style="grid-template-columns:1fr">
-  <div><div class="kicker rise anim">Próximas etapas</div>
-  <h1 class="rise anim" style="animation-delay:.2s">Front-end pronto para evoluir</h1>
-  <p class="rise anim" style="animation-delay:.4s">As telas desta etapa são a base do trabalho final: implementação com banco de dados, aplicação dos design patterns da disciplina e diagramas de classes e de sequência do CDU01.</p>
-  <div class="meta rise anim" style="animation-delay:.6s"><span class="chip"><i data-lucide="arrow-left" class="ic"></i><i data-lucide="arrow-right" class="ic"></i> navegar</span><span class="chip"><i data-lucide="rotate-ccw" class="ic"></i> R repetir animação</span><span class="chip"><i data-lucide="maximize" class="ic"></i> F tela cheia</span></div></div></div></section>`;
-
 slidesEl.insertAdjacentHTML('beforeend', cover + flow);
 demos.forEach(d=>slidesEl.appendChild(buildDemo(d)));
-slidesEl.insertAdjacentHTML('beforeend', rules + closing);
+slidesEl.insertAdjacentHTML('beforeend', rules);
 if (window.lucide) lucide.createIcons();
 
 const slides=[...slidesEl.children]; let cur=0;
@@ -357,8 +350,6 @@ function go(i){
   i=Math.max(0,Math.min(slides.length-1,i)); if(i===cur && slides[cur].classList.contains('active')) return;
   slides[cur].classList.remove('active','run');
   cur=i; const el=slides[cur]; el.classList.add('active'); run(el);
-  document.body.classList.toggle('dark',el.classList.contains('dark'));
-  stage.classList.toggle('dark',el.classList.contains('dark'));
   document.getElementById('count').textContent=`${cur+1} / ${slides.length}`;
   document.getElementById('progress').style.width=`${(cur+1)/slides.length*100}%`;
   try{history.replaceState(null,'','#'+(cur+1))}catch(e){}
@@ -378,7 +369,6 @@ const start=parseInt(location.hash.slice(1))-1;
 slides[0].classList.add('active'); cur=0; go(isNaN(start)?0:start); if(!start||isNaN(start)) run(slides[0]);
 document.getElementById('count').textContent=`${cur+1} / ${slides.length}`;
 document.getElementById('progress').style.width=`${(cur+1)/slides.length*100}%`;
-stage.classList.toggle('dark',slides[cur].classList.contains('dark'));
 </script>
 </body>
 </html>
