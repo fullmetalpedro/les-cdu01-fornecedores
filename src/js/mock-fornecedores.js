@@ -61,3 +61,29 @@ const fornecedores = [
       bairro: "Boa Viagem", cep: "51011000", cidade: "Recife", estado: "PE", pais: "BR" }
   }
 ];
+
+/*
+ * A4.4 / A5.4: enquanto não há back-end (P8), a mudança de status fica guardada na sessão
+ * do navegador para valer também ao navegar entre a busca e o cadastro.
+ */
+const CHAVE_STATUS = "fornecedores.statusAlterados";
+
+function lerStatusAlterados() {
+  try {
+    return JSON.parse(sessionStorage.getItem(CHAVE_STATUS)) || {};
+  } catch (e) {
+    return {};
+  }
+}
+
+function atualizarStatusFornecedor(codigo, status) {
+  const fornecedor = fornecedores.find((f) => f.codigo === codigo);
+  if (fornecedor) fornecedor.status = status;
+  const alterados = { ...lerStatusAlterados(), [codigo]: status };
+  try { sessionStorage.setItem(CHAVE_STATUS, JSON.stringify(alterados)); } catch (e) { /* sessão indisponível */ }
+}
+
+for (const [codigo, status] of Object.entries(lerStatusAlterados())) {
+  const fornecedor = fornecedores.find((f) => f.codigo === codigo);
+  if (fornecedor) fornecedor.status = status;
+}
