@@ -46,6 +46,5 @@ OBSERVACOES
 - Fora do escopo desta etapa, conforme o enunciado: persistencia (P8),
   CNPJ unico (P7/E2), geracao do codigo (RNF0081), log (RNF0012) e
   tempo de resposta (RNF0011).
-- Ambiguidades encontradas na especificacao: docs/ambiguidades.md
 - Apresentacao de uso do sistema: abra apresentacao/index.html
   (setas do teclado navegam; R repete a animacao; F tela cheia).

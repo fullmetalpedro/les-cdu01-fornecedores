@@ -71,7 +71,7 @@ src/js/dominios.js, src/js/cadastro.js e src/js/status.js.
    - modo=alterar&codigo=X: carregue o fornecedor do mock e permita editar. O Código continua
      bloqueado (A3.1). O status atual é mantido.
    - modo=visualizar&codigo=X: os mesmos campos mais o status, TODOS somente leitura (A1.1).
-     Para sair, veja a ambiguidade nº 1.
+     Para sair, só o botão Cancelar.
 3. Salvar (P5 opção a, e A3.2 opção a) leva à validação dos obrigatórios (P6).
    - Se faltar algo, aplique o E1: destaque cada campo não preenchido, mostre quais estão
      pendentes, MANTENHA os dados digitados e volte ao formulário.
@@ -92,8 +92,6 @@ src/js/dominios.js, src/js/cadastro.js e src/js/status.js.
 
 ## Restrições
 - NÃO inclua campos, telas, botões, mensagens ou comportamentos que não estejam nos documentos.
-- Se encontrar uma ambiguidade, NÃO resolva por suposição: registre em docs/ambiguidades.md e
-  siga a decisão provisória que está lá. As nº 1, 3, 4 e 5 são da sua parte.
 - NÃO implemente nada que esteja fora do escopo: P7/E2 (CNPJ único), P8 (persistência),
   RNF0012 (log) e a geração de código (RNF0081).
 - Use os nomes de campos, IDs e name do contrato. O formulário vai virar o DTO/entidade do
@@ -114,8 +112,7 @@ src/js/dominios.js, src/js/cadastro.js e src/js/status.js.
 - [ ] Os requisitos estão citados em comentários no código.
 - [ ] Os estados batem com design/telas-png/07 a 13.
 
-Ao terminar, liste quais requisitos (RF, RNF, RN e passos do UC) foram atendidos e onde, e
-quais ambiguidades foram registradas.
+Ao terminar, liste quais requisitos (RF, RNF, RN e passos do UC) foram atendidos e onde.
 ```
 
 ## Telas de referência

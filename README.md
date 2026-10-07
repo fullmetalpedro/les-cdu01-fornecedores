@@ -4,7 +4,7 @@ Projeto da disciplina **Laboratório de Engenharia de Software (LES) – FATEC, 
 
 Esta é a **1ª etapa do trabalho final**: o front-end em HTML das telas do caso de uso CDU01. Na entrega final, o mesmo CRUD terá banco de dados, os design patterns da disciplina e os diagramas de classes e de sequência.
 
-> **Regra de ouro:** a [Especificação do Caso de Uso](docs/UC_Manter_Cadastro_de_Fornecedores.md) e o [Documento de Requisitos (DRS v0.7)](docs/DRS_LES_2_2026.md) são as **únicas** referências. Toda implementação deve seguir os requisitos funcionais, os não funcionais, as regras de negócio e os fluxos do caso de uso. Nada pode ser acrescentado além do que está neles. Ambiguidades são registradas em [docs/ambiguidades.md](docs/ambiguidades.md), e não resolvidas por suposição.
+> **Regra de ouro:** a [Especificação do Caso de Uso](docs/UC_Manter_Cadastro_de_Fornecedores.md) e o [Documento de Requisitos (DRS v0.7)](docs/DRS_LES_2_2026.md) são as **únicas** referências. Toda implementação deve seguir os requisitos funcionais, os não funcionais, as regras de negócio e os fluxos do caso de uso. Nada pode ser acrescentado além do que está neles.
 
 ## Autores
 
@@ -56,8 +56,7 @@ docs/
 ├── UC_Manter_Cadastro_de_Fornecedores.md  Caso de uso CDU01 convertido para Markdown
 ├── enunciado-atividade.md              Enunciado e escopo desta etapa
 ├── divisao-tarefas.md                  Divisão entre as duas pessoas e checklist de entrega
-├── contrato-integracao.md              Estrutura, modelo, IDs e navegação combinados
-└── ambiguidades.md                     Pontos a confirmar com o professor
+└── contrato-integracao.md              Estrutura, modelo, IDs e navegação combinados
 prompts/
 ├── pessoa-a-busca-resultado.md
 ├── pessoa-b-cadastro-status.md

@@ -101,7 +101,7 @@
       if (campo.tagName === "SELECT") campo.disabled = true;
       else campo.readOnly = true;
     }
-    btnSalvar.hidden = true; // Ambiguidade #1 (docs/ambiguidades.md): só Cancelar na visualização.
+    btnSalvar.hidden = true; // A1: na visualização só o Cancelar fica disponível.
     requiredHint.hidden = true;
   }
 
@@ -136,7 +136,7 @@
     btnSalvar.disabled = !usuarioLogado.permissoes.includes(permissaoSalvar);
   }
 
-  // Ambiguidade #3 (docs/ambiguidades.md): CNPJ com máscara 00.000.000/0000-00.
+  // CNPJ com máscara 00.000.000/0000-00.
   function aplicarMascaraCnpj(valor) {
     const digitos = valor.replace(/\D/g, "").slice(0, 14);
     if (digitos.length > 12) return digitos.replace(/^(\d{2})(\d{3})(\d{3})(\d{4})(\d{1,2})$/, "$1.$2.$3/$4-$5");
@@ -150,7 +150,7 @@
     $("txtCnpj").addEventListener("input", (evento) => {
       evento.target.value = aplicarMascaraCnpj(evento.target.value);
     });
-    // Ambiguidade #5: aceita 8 ou 9 dígitos para o número do telefone.
+    // Aceita 8 ou 9 dígitos para o número do telefone.
     ["txtDdd", "txtNumeroTelefone", "txtCep"].forEach((id) => {
       $(id).addEventListener("input", (evento) => {
         evento.target.value = evento.target.value.replace(/\D/g, "");

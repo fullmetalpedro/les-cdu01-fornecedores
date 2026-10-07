@@ -52,7 +52,7 @@
     }
   }
 
-  // Ambiguidade nº 3: CNPJ Alfanumérico 18 tratado com a máscara 00.000.000/0000-00
+  // CNPJ Alfanumérico 18 tratado com a máscara 00.000.000/0000-00
   function mascararCnpj(valor) {
     const d = valor.replace(/\D/g, "").slice(0, 14);
     return d

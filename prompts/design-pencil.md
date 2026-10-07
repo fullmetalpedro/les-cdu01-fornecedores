@@ -16,8 +16,7 @@ REGRA DE OURO
 As únicas referências são a Especificação do CDU01 e o DRS_LES_2_2026 v0.7. Não inclua campos,
 telas, botões, mensagens ou comportamentos que não estejam nesses documentos. Cada elemento deve
 seguir exatamente a tabela de elementos da especificação: nome, tipo, obrigatoriedade, tamanho e
-comportamento. Se algo for ambíguo, não resolva por suposição: deixe uma nota no canvas marcada
-como "AMBIGUIDADE – consultar professor".
+comportamento.
 
 ESCOPO DESTA ETAPA
 Somente front-end. Os dados ficam fixos no código (mock).

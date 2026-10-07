@@ -20,14 +20,13 @@ A divisão foi feita por telas, o que reduz conflitos no código. O esforço das
 
 ## Etapa 1: em paralelo
 
-Cada pessoa segue o seu prompt, em commits pequenos na própria branch. O que for ambíguo vai para [ambiguidades.md](ambiguidades.md).
+Cada pessoa segue o seu prompt, em commits pequenos na própria branch.
 
 ## Etapa 2: integração e revisão cruzada
 
 1. Cada pessoa abre um Pull Request para a `main`. **A outra pessoa revisa**, conferindo campo por campo contra a tabela de elementos da especificação.
 2. Depois do merge, testem juntos a navegação completa: Busca → Novo / Visualizar / Alterar / Inativar / Ativar → volta à busca.
 3. Rodem o checklist de entrega abaixo.
-4. A Pessoa A envia ao professor as ambiguidades consolidadas.
 
 ## Checklist de entrega (front-end)
 
@@ -40,7 +39,6 @@ Cada pessoa segue o seu prompt, em commits pequenos na própria branch. O que fo
 - [ ] E1, E3 e E4 estão implementados. E2 fica para o back-end.
 - [ ] Todos os retornos à busca funcionam (Cancelar, Salvar e Confirmar).
 - [ ] Não há nenhum campo, tela ou comportamento fora dos documentos.
-- [ ] As ambiguidades foram registradas e comunicadas.
 
 ## Pensando no trabalho final
 
