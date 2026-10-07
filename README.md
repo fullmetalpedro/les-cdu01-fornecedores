@@ -6,6 +6,13 @@ Esta é a **1ª etapa do trabalho final**: o front-end em HTML das telas do caso
 
 > **Regra de ouro:** a [Especificação do Caso de Uso](docs/UC_Manter_Cadastro_de_Fornecedores.md) e o [Documento de Requisitos (DRS v0.7)](docs/DRS_LES_2_2026.md) são as **únicas** referências. Toda implementação deve seguir os requisitos funcionais, os não funcionais, as regras de negócio e os fluxos do caso de uso. Nada pode ser acrescentado além do que está neles. Ambiguidades são registradas em [docs/ambiguidades.md](docs/ambiguidades.md), e não resolvidas por suposição.
 
+## Autores
+
+| Nome | GitHub | Parte |
+|---|---|---|
+| Pedro Paulo Sousa de Carlo | [@fullmetalpedro](https://github.com/fullmetalpedro) | Pessoa A: Busca e Resultado (11.1 e 11.2) |
+| Pedro Araujo | [@Araujo2303](https://github.com/Araujo2303) | Pessoa B: Cadastro e Inativação/Ativação (11.3 e 11.4) |
+
 ## Por onde começar
 
 1. Leia o [enunciado da atividade](docs/enunciado-atividade.md).

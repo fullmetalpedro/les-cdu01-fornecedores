@@ -4,6 +4,7 @@ A divisão foi feita por telas, o que reduz conflitos no código. O esforço das
 
 | | Pessoa A: Busca | Pessoa B: Manutenção |
 |---|---|---|
+| Responsável | Pedro Paulo Sousa de Carlo | Pedro Araujo |
 | Telas | 11.1 Busca, 11.2 Resultado | 11.3 Cadastro (inclusão, alteração e visualização), 11.4 Inativação/Ativação |
 | Fluxos do UC | P1.1–P1.3, P2, P3, A2, E3 | P3–P6, A1, A3, A4, A5, E1, E4 |
 | RF | RF0085 (e a entrada para RF0081 a RF0084) | RF0081, RF0082, RF0083, RF0084 |
