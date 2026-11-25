@@ -1,0 +1,112 @@
+---
+title: CDU01 Manter Cadastro de Fornecedores - Classes de dominio (C#)
+---
+classDiagram
+    direction TB
+
+    class Fornecedor {
+        +string? Codigo
+        +string RazaoSocial
+        +string NomeFantasia
+        +string Cnpj
+        +string Email
+        +StatusFornecedor Status
+        +Fornecedor(razaoSocial, nomeFantasia, cnpj, email, telefone, endereco)
+        +Fornecedor(codigo, razaoSocial, nomeFantasia, cnpj, email, status, telefone, endereco)
+    }
+    class StatusFornecedor {
+        <<enumeration>>
+        Ativo
+        Inativo
+    }
+    class Telefone {
+        +string Ddd
+        +string Numero
+        +Telefone(tipo, ddd, numero)
+    }
+    class Endereco {
+        +string Logradouro
+        +string Numero
+        +string? Complemento
+        +string Bairro
+        +string Cep
+        +string Cidade
+        +Endereco(tipoLogradouro, logradouro, numero, complemento, bairro, cep, cidade, estado, pais)
+    }
+    class TipoTelefone {
+        +string Codigo
+        +string Nome
+        +TipoTelefone(codigo, nome)
+    }
+    class TipoLogradouro {
+        +string Codigo
+        +string Nome
+        +TipoLogradouro(codigo, nome)
+    }
+    class Estado {
+        +string Sigla
+        +string Nome
+        +Estado(sigla, nome)
+    }
+    class Pais {
+        +string Codigo
+        +string Nome
+        +Pais(codigo, nome)
+    }
+    class Inativacao {
+        +long Id
+        +string Justificativa
+        +DateTimeOffset DataHora
+        +string Usuario
+        +Inativacao(categoria, justificativa, dataHora, usuario)
+        +Inativacao(id, categoria, justificativa, dataHora, usuario)
+    }
+    class Ativacao {
+        +long Id
+        +string Justificativa
+        +DateTimeOffset DataHora
+        +string Usuario
+        +Ativacao(categoria, justificativa, dataHora, usuario)
+        +Ativacao(id, categoria, justificativa, dataHora, usuario)
+    }
+    class CategoriaInativacao {
+        +string Codigo
+        +string Nome
+        +CategoriaInativacao(codigo, nome)
+    }
+    class CategoriaAtivacao {
+        +string Codigo
+        +string Nome
+        +CategoriaAtivacao(codigo, nome)
+    }
+    class LogTransacao {
+        +long Id
+        +DateTimeOffset DataHora
+        +string Usuario
+        +TipoOperacao Operacao
+        +string? DadosAnteriores
+        +string DadosNovos
+        +LogTransacao(dataHora, usuario, operacao, fornecedor, dadosAnteriores, dadosNovos)
+        +LogTransacao(id, dataHora, usuario, operacao, fornecedor, dadosAnteriores, dadosNovos)
+    }
+    class TipoOperacao {
+        <<enumeration>>
+        Inclusao
+        Alteracao
+        Inativacao
+        Ativacao
+    }
+
+    Fornecedor "1" *--> "1" Telefone : Telefone
+    Fornecedor "1" *--> "1" Endereco : Endereco
+    Fornecedor "1" *--> "0..*" Inativacao : Inativacoes
+    Fornecedor "1" *--> "0..*" Ativacao : Ativacoes
+    Telefone "0..*" --> "1" TipoTelefone : Tipo
+    Endereco "0..*" --> "1" TipoLogradouro : TipoLogradouro
+    Endereco "0..*" --> "1" Estado : Estado
+    Endereco "0..*" --> "1" Pais : Pais
+    Inativacao "0..*" --> "1" CategoriaInativacao : Categoria
+    Ativacao "0..*" --> "1" CategoriaAtivacao : Categoria
+    LogTransacao "0..*" --> "1" Fornecedor : Fornecedor
+    LogTransacao ..> TipoOperacao
+    StatusFornecedor <.. Fornecedor

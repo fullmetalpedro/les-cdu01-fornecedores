@@ -1,0 +1,83 @@
+---
+title: CDU01 Manter Cadastro de Fornecedores - Modelo de dados (PostgreSQL)
+---
+erDiagram
+    tipo_telefone ||--o{ fornecedor : "telefone_tipo"
+    tipo_logradouro ||--o{ fornecedor : "endereco_tipo_logradouro"
+    estado ||--o{ fornecedor : "endereco_estado"
+    pais ||--o{ fornecedor : "endereco_pais"
+    fornecedor ||--o{ fornecedor_inativacao : "fornecedor_codigo"
+    fornecedor ||--o{ fornecedor_ativacao : "fornecedor_codigo"
+    fornecedor ||--o{ log_transacao : "fornecedor_codigo"
+    categoria_inativacao ||--o{ fornecedor_inativacao : "categoria"
+    categoria_ativacao ||--o{ fornecedor_ativacao : "categoria"
+
+    fornecedor {
+        VARCHAR(10) codigo PK "NOT NULL - gerado pelo sistema (RNF0081)"
+        VARCHAR(100) razao_social "NOT NULL"
+        VARCHAR(60) nome_fantasia "NOT NULL"
+        VARCHAR(18) cnpj UK "NOT NULL - unico em qualquer status (RN0083)"
+        VARCHAR(100) email "NOT NULL"
+        VARCHAR(7) status "NOT NULL - ATIVO ou INATIVO"
+        VARCHAR(30) telefone_tipo FK "NOT NULL"
+        VARCHAR(2) telefone_ddd "NOT NULL - so digitos"
+        VARCHAR(9) telefone_numero "NOT NULL - so digitos"
+        VARCHAR(30) endereco_tipo_logradouro FK "NOT NULL"
+        VARCHAR(100) endereco_logradouro "NOT NULL"
+        VARCHAR(10) endereco_numero "NOT NULL"
+        VARCHAR(60) endereco_complemento "NULL - opcional (RN0082)"
+        VARCHAR(60) endereco_bairro "NOT NULL"
+        VARCHAR(8) endereco_cep "NOT NULL - so digitos"
+        VARCHAR(60) endereco_cidade "NOT NULL"
+        CHAR(2) endereco_estado FK "NOT NULL"
+        CHAR(2) endereco_pais FK "NOT NULL"
+    }
+    fornecedor_inativacao {
+        BIGINT id PK "NOT NULL - identity"
+        VARCHAR(10) fornecedor_codigo FK "NOT NULL"
+        VARCHAR(30) categoria FK "NOT NULL (RN0084)"
+        VARCHAR(255) justificativa "NOT NULL (RN0084)"
+        TIMESTAMPTZ data_hora "NOT NULL (RNF0012)"
+        VARCHAR(100) usuario "NOT NULL (RNF0012)"
+    }
+    fornecedor_ativacao {
+        BIGINT id PK "NOT NULL - identity"
+        VARCHAR(10) fornecedor_codigo FK "NOT NULL"
+        VARCHAR(30) categoria FK "NOT NULL (RN0085)"
+        VARCHAR(255) justificativa "NOT NULL (RN0085)"
+        TIMESTAMPTZ data_hora "NOT NULL (RNF0012)"
+        VARCHAR(100) usuario "NOT NULL (RNF0012)"
+    }
+    log_transacao {
+        BIGINT id PK "NOT NULL - identity"
+        TIMESTAMPTZ data_hora "NOT NULL"
+        VARCHAR(100) usuario "NOT NULL"
+        VARCHAR(10) operacao "NOT NULL - INCLUSAO, ALTERACAO, INATIVACAO ou ATIVACAO"
+        VARCHAR(10) fornecedor_codigo FK "NOT NULL"
+        JSONB dados_anteriores "NULL - nulo apenas na inclusao"
+        JSONB dados_novos "NOT NULL"
+    }
+    tipo_telefone {
+        VARCHAR(30) codigo PK "NOT NULL"
+        VARCHAR(60) nome UK "NOT NULL"
+    }
+    tipo_logradouro {
+        VARCHAR(30) codigo PK "NOT NULL"
+        VARCHAR(60) nome UK "NOT NULL"
+    }
+    estado {
+        CHAR(2) sigla PK "NOT NULL"
+        VARCHAR(60) nome UK "NOT NULL"
+    }
+    pais {
+        CHAR(2) codigo PK "NOT NULL"
+        VARCHAR(60) nome UK "NOT NULL"
+    }
+    categoria_inativacao {
+        VARCHAR(30) codigo PK "NOT NULL"
+        VARCHAR(60) nome UK "NOT NULL"
+    }
+    categoria_ativacao {
+        VARCHAR(30) codigo PK "NOT NULL"
+        VARCHAR(60) nome UK "NOT NULL"
+    }
