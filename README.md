@@ -22,6 +22,28 @@ Esta é a **1ª etapa do trabalho final**: o front-end em HTML das telas do caso
    - **Pessoa A:** Busca e Resultado (11.1 e 11.2) → [prompts/pessoa-a-busca-resultado.md](prompts/pessoa-a-busca-resultado.md)
    - **Pessoa B:** Cadastro e Inativação/Ativação (11.3 e 11.4) → [prompts/pessoa-b-cadastro-status.md](prompts/pessoa-b-cadastro-status.md)
 
+## Etapa 2: modelo de dados e classes de domínio
+
+[Enunciado da Etapa 2](docs/enunciado-etapa-2.md). Linguagem: C# (.NET 10). Banco: PostgreSQL.
+
+| Entrega | Arquivo |
+|---|---|
+| Modelo de dados (DER) | [modelagem/diagramas/der.png](modelagem/diagramas/der.png) |
+| Script DDL | [banco/01-ddl.sql](banco/01-ddl.sql) |
+| Script de domínios (RNF0013) | [banco/02-dominios.sql](banco/02-dominios.sql) |
+| Diagrama de classes de domínio | [modelagem/diagramas/classes.png](modelagem/diagramas/classes.png) |
+| Classes de domínio | [backend/Fornecedores.Dominio/](backend/Fornecedores.Dominio/) |
+| Matriz de rastreabilidade | [modelagem/matriz-rastreabilidade.md](modelagem/matriz-rastreabilidade.md) |
+| Ambiguidades e decisões | [modelagem/ambiguidades-e-decisoes.md](modelagem/ambiguidades-e-decisoes.md) |
+
+Para criar o banco, execute os dois scripts em ordem:
+
+```bash
+psql -d <banco> -f banco/01-ddl.sql -f banco/02-dominios.sql
+```
+
+Os diagramas são gerados a partir dos arquivos `.mmd` com `node modelagem/diagramas/renderizar.mjs`.
+
 ## Como rodar
 
 ```bash

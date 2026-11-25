@@ -1,0 +1,37 @@
+CDU01 - MANTER CADASTRO DE FORNECEDORES
+E-commerce de Livros - LES / FATEC 2026 - 2a etapa (modelo de dados e classes de dominio)
+
+AUTORES
+-------
+Pedro Paulo Sousa de Carlo
+Pedro Araujo
+
+Repositorio: https://github.com/fullmetalpedro/les-cdu01-fornecedores
+
+Linguagem: C# (.NET 10)     Banco de dados: PostgreSQL
+
+CONTEUDO
+--------
+1. Modelo de dados (DER)            modelagem/diagramas/der.png
+2. Script DDL                       banco/01-ddl.sql
+3. Script de dominios (RNF0013)     banco/02-dominios.sql
+4. Diagrama de classes de dominio   modelagem/diagramas/classes.png
+5. Classes de dominio               backend/Fornecedores.Dominio/
+6. Matriz de rastreabilidade        modelagem/matriz-rastreabilidade.md
+7. Ambiguidades e decisoes          modelagem/ambiguidades-e-decisoes.md
+
+A pasta docs/ traz a especificacao do caso de uso, o DRS e o contrato de
+integracao da Etapa 1, citados pelos documentos acima.
+
+COMO CRIAR O BANCO
+------------------
+Execute os dois scripts em ordem, num banco PostgreSQL vazio:
+
+  psql -d <banco> -f banco/01-ddl.sql -f banco/02-dominios.sql
+
+OBSERVACOES
+-----------
+- As ambiguidades encontradas nos documentos estao na secao 1 de
+  modelagem/ambiguidades-e-decisoes.md. Os valores das tabelas de dominio
+  sao provisorios (item A1).
+- Os fontes dos diagramas (Mermaid) estao em modelagem/diagramas/*.mmd.
