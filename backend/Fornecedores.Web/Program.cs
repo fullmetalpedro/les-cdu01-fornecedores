@@ -27,7 +27,11 @@ builder.Services.AddScoped<FachadaFornecedor>();
 var app = builder.Build();
 
 var pastaDasTelas = Path.GetFullPath(configuracao["PastaDasTelas"]!, app.Environment.ContentRootPath);
-app.UseFileServer(new FileServerOptions { FileProvider = new PhysicalFileProvider(pastaDasTelas) });
+app.UseFileServer(new FileServerOptions
+{
+    FileProvider = new PhysicalFileProvider(pastaDasTelas),
+    StaticFileOptions = { OnPrepareResponse = arquivo => arquivo.Context.Response.Headers.CacheControl = "no-cache" },
+});
 app.MapControllers();
 
 app.Run();
