@@ -1,8 +1,3 @@
-/*
- * css/cadastro.css (Pessoa B) - estilos específicos do formulário da tela 11.3.
- * A base vem de css/estilo.css; alerta, erro de campo e modal ficam em css/status.css.
- */
-
 .cabecalho--cadastro {
   display: flex;
   align-items: baseline;
@@ -13,7 +8,6 @@
   display: flex;
   align-items: center;
   gap: 12px;
-  font-size: 26px;
 }
 
 .required-hint {
@@ -21,7 +15,6 @@
   color: var(--muted);
 }
 
-/* Seções do formulário (Dados do fornecedor / Telefone / Endereço) */
 .secao {
   display: grid;
   grid-template-columns: 260px 1fr;

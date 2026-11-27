@@ -41,3 +41,14 @@ Nenhuma delas foi resolvida por suposição. Onde o modelo precisava de algum va
 ## 3. Limite conhecido desta etapa
 
 O banco não impede, sozinho, que `fornecedor.status` seja alterado sem a linha correspondente em `fornecedor_inativacao` ou `fornecedor_ativacao`. As duas escritas (e a do log) devem ocorrer na mesma transação, o que é responsabilidade da camada de persistência da próxima etapa.
+
+## 4. Decisões da implementação (Etapa 3)
+
+| # | Decisão | Justificativa | Requisito |
+|---|---|---|---|
+| D15 | Os filtros de texto da busca (código, razão social, nome fantasia e cidade) encontram o valor em qualquer parte do campo, sem diferenciar maiúsculas e acentos. O CNPJ é comparado só pelos dígitos. O DDL passa a criar a extensão `unaccent`. | Mantém o comportamento da Etapa 1 enquanto A8 não for respondida. | P1.1, RF0085, A8 |
+| D16 | O usuário autenticado (nome, perfil e permissões) vem da configuração do servidor (`appsettings.json`). O nome é o valor gravado como usuário responsável. | A autenticação é pré-condição do caso de uso e nenhum documento define a entidade usuário. | Pré-condição 7.1, P3, RNF0012, A5 |
+| D17 | O log guarda o fornecedor completo antes (`dados_anteriores`) e depois (`dados_novos`) de cada operação. | Atende às duas leituras de "manter os dados alterados" enquanto A4 não for respondida. | RNF0012, CA08, A4 |
+| D18 | As permissões das tabelas da seção 11 são verificadas na tela (botões desabilitados) e no servidor (resposta 403). | A tela sozinha não impede uma chamada direta à API. | Seção 11 |
+| D19 | Depois de salvar, inativar ou ativar, a tela de busca exibe a mensagem de sucesso com o código do fornecedor. | P8.1, A4.5 e A5.5 pedem a mensagem; a busca é o destino de P8.4, A4.5 e A5.5. | P8.1, P8.4, A4.5, A5.5 |
+| D20 | A alteração de um fornecedor inexistente e a inativação ou ativação de um fornecedor que já está no status de destino são recusadas pelo servidor. | A2 exige a consulta pontual antes da operação, e A4 e A5 valem só para ATIVO e INATIVO, respectivamente. | A2, A4, A5 |

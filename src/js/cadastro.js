@@ -1,213 +1,164 @@
-/*
- * Tela 11.3 (Cadastro de Fornecedor) – CDU01 Manter Cadastro de Fornecedores.
- * Dona: Pessoa B. Contrato com a Pessoa A: docs/contrato-integracao.md.
- * Modos novo/alterar/visualizar (P3-P6, A1, A3, E1).
- */
-(function () {
-  "use strict";
+import { api } from "./api.js";
+import {
+  $, aplicarMascaraCnpj, camposObrigatoriosVazios, carregarSessao, criarIcones, destacarCamposComErro,
+  exibirStatusNoBadge, guardarMensagemDeSucesso, limparErrosDosCampos, preencherCombo, somenteDigitos, temPermissao,
+} from "./comum.js";
 
-  const $ = (id) => document.getElementById(id);
+const MODOS = {
+  novo: { titulo: "Novo Fornecedor", permissaoParaSalvar: "FORNECEDOR_INCLUIR", acaoConcluida: "cadastrado" },
+  alterar: { titulo: "Alterar Fornecedor", permissaoParaSalvar: "FORNECEDOR_ALTERAR", acaoConcluida: "alterado" },
+  visualizar: { titulo: "Visualizar Fornecedor" },
+};
+const IDS_DOS_CAMPOS_NUMERICOS = ["txtDdd", "txtNumeroTelefone", "txtCep"];
+const AVISO_DADOS_MANTIDOS = "Os dados já digitados foram mantidos.";
 
-  // RN0081 - Razão Social, Nome Fantasia, CNPJ, E-mail e Telefone (tipo + DDD + número)
-  // RN0082 - Tipo Logradouro, Logradouro, Número, Bairro, CEP, Cidade, Estado e País
-  const CAMPOS_OBRIGATORIOS = [
-    { name: "razaoSocial", label: "Razão Social" },
-    { name: "nomeFantasia", label: "Nome Fantasia" },
-    { name: "cnpj", label: "CNPJ" },
-    { name: "email", label: "E-mail" },
-    { name: "telefone.tipo", label: "Tipo de Telefone" },
-    { name: "telefone.ddd", label: "DDD" },
-    { name: "telefone.numero", label: "Número do Telefone" },
-    { name: "endereco.tipoLogradouro", label: "Tipo de Logradouro" },
-    { name: "endereco.logradouro", label: "Logradouro" },
-    { name: "endereco.numero", label: "Número" },
-    { name: "endereco.bairro", label: "Bairro" },
-    { name: "endereco.cep", label: "CEP" },
-    { name: "endereco.cidade", label: "Cidade" },
-    { name: "endereco.estado", label: "Estado" },
-    { name: "endereco.pais", label: "País" },
-  ];
+const parametrosDaUrl = new URLSearchParams(window.location.search);
+const nomeDoModo = parametrosDaUrl.get("modo") ?? "novo";
+const modo = MODOS[nomeDoModo];
+const emInclusao = nomeDoModo === "novo";
+const emVisualizacao = nomeDoModo === "visualizar";
+const codigo = parametrosDaUrl.get("codigo") ?? "";
 
-  const form = $("formCadastro");
-  const btnSalvar = $("btnSalvar");
-  const btnCancelar = $("btnCancelar");
-  const pageTitle = $("pageTitle");
-  const statusBadge = $("statusBadge");
-  const requiredHint = $("requiredHint");
-  const formAlert = $("formAlert");
-  const formAlertDetail = $("formAlertDetail");
+const formulario = $("formCadastro");
+const alerta = $("formAlert");
+const botaoSalvar = $("btnSalvar");
+const campoCnpj = $("txtCnpj");
 
-  function getParams() {
-    const params = new URLSearchParams(window.location.search);
-    return {
-      modo: params.get("modo") || "novo",
-      codigo: params.get("codigo") || "",
-      cnpj: params.get("cnpj") || "",
-    };
-  }
+const { usuario, dominios } = await carregarSessao();
+prepararFormulario();
+await preencherDadosIniciais();
+criarIcones();
 
-  // RNF0013 - os combobox assumem os dados das tabelas de domínio (js/dominios.js).
-  function preencherCombo(select, opcoes, valorProp, textoProp) {
-    opcoes.forEach((opcao) => {
-      const option = document.createElement("option");
-      option.value = opcao[valorProp];
-      option.textContent = opcao[textoProp];
-      select.appendChild(option);
-    });
-  }
+function prepararFormulario() {
+  $("pageTitle").textContent = modo.titulo;
+  preencherCombos();
+  aplicarMascaraCnpj(campoCnpj);
+  IDS_DOS_CAMPOS_NUMERICOS.forEach((id) => aceitarSomenteDigitos($(id)));
+  formulario.addEventListener("submit", salvar);
+  $("btnCancelar").addEventListener("click", voltarParaBusca);
+  botaoSalvar.disabled = !temPermissao(usuario, modo.permissaoParaSalvar);
+  if (emVisualizacao) aplicarSomenteLeitura();
+}
 
-  function preencherCombos() {
-    preencherCombo($("cboTipoTelefone"), dominios.tiposTelefone, "codigo", "nome");
-    preencherCombo($("cboTipoLogradouro"), dominios.tiposLogradouro, "codigo", "nome");
-    preencherCombo($("cboEstado"), dominios.estados, "sigla", "nome");
-    preencherCombo($("cboPais"), dominios.paises, "codigo", "nome");
-  }
+function preencherCombos() {
+  preencherCombo($("cboTipoTelefone"), dominios.tiposTelefone);
+  preencherCombo($("cboTipoLogradouro"), dominios.tiposLogradouro);
+  preencherCombo($("cboEstado"), dominios.estados, { valor: "sigla" });
+  preencherCombo($("cboPais"), dominios.paises);
+}
 
-  // P3 - identificação do usuário autenticado (usuarioLogado vem de js/mock-fornecedores.js).
-  function exibirUsuario() {
-    $("lblNomeUsuario").textContent = usuarioLogado.nome;
-    $("lblPerfilUsuario").textContent = usuarioLogado.perfil;
-    $("lblIniciaisUsuario").textContent = usuarioLogado.nome
-      .split(" ").map((p) => p[0]).slice(0, 2).join("").toUpperCase();
-  }
-
-  // Busca o fornecedor no mock da Pessoa A (js/mock-fornecedores.js, contrato seção 2).
-  function buscarFornecedorPorCodigo(codigo) {
-    return fornecedores.find((f) => f.codigo === codigo) || null;
-  }
-
-  // Os name="" do formulário seguem o contrato (seção 2), incluindo os aninhados
-  // (telefone.ddd, endereco.cidade etc.), então dá para percorrer form.elements.
-  function preencherFormulario(fornecedor) {
-    for (const campo of form.elements) {
-      if (!campo.name) continue;
-      const valor = campo.name.split(".").reduce((atual, chave) => (atual ? atual[chave] : undefined), fornecedor);
-      campo.value = valor ?? "";
-    }
-  }
-
-  function exibirStatusBadge(status) {
-    const ativo = status === "ATIVO";
-    statusBadge.hidden = false;
-    statusBadge.textContent = ativo ? "ATIVO" : "INATIVO";
-    statusBadge.classList.remove("badge--ativo", "badge--inativo");
-    statusBadge.classList.add(ativo ? "badge--ativo" : "badge--inativo");
-  }
-
-  // A1.1 - na visualização todos os campos são somente leitura.
-  function aplicarSomenteLeitura() {
-    for (const campo of form.elements) {
-      if (!campo.name) continue;
-      if (campo.tagName === "SELECT") campo.disabled = true;
-      else campo.readOnly = true;
-    }
-    btnSalvar.hidden = true; // A1: na visualização só o Cancelar fica disponível.
-    requiredHint.hidden = true;
-  }
-
-  function inicializar() {
-    exibirUsuario();
-    preencherCombos();
-    aplicarMascarasEEntradaNumerica();
-    if (window.lucide) lucide.createIcons();
-
-    const { modo, codigo, cnpj } = getParams();
-
-    if (modo === "novo") {
-      pageTitle.textContent = "Novo Fornecedor";
-      // P1.3 / P4.1 - CNPJ recuperado quando usado como parâmetro de busca.
-      if (cnpj) $("txtCnpj").value = cnpj;
-    } else if (modo === "alterar") {
-      pageTitle.textContent = "Alterar Fornecedor";
-      const fornecedor = buscarFornecedorPorCodigo(codigo);
-      if (fornecedor) preencherFormulario(fornecedor); // A3.1 - Código permanece não editável.
-    } else if (modo === "visualizar") {
-      pageTitle.textContent = "Visualizar Fornecedor";
-      const fornecedor = buscarFornecedorPorCodigo(codigo);
-      if (fornecedor) {
-        preencherFormulario(fornecedor);
-        exibirStatusBadge(fornecedor.status); // A1.1 - status também é exibido.
-      }
-      aplicarSomenteLeitura();
-    }
-
-    // Tabela 11.3 - Salvar exige FORNECEDOR_INCLUIR (inclusão) ou FORNECEDOR_ALTERAR (alteração).
-    const permissaoSalvar = modo === "novo" ? "FORNECEDOR_INCLUIR" : "FORNECEDOR_ALTERAR";
-    btnSalvar.disabled = !usuarioLogado.permissoes.includes(permissaoSalvar);
-  }
-
-  // CNPJ com máscara 00.000.000/0000-00.
-  function aplicarMascaraCnpj(valor) {
-    const digitos = valor.replace(/\D/g, "").slice(0, 14);
-    if (digitos.length > 12) return digitos.replace(/^(\d{2})(\d{3})(\d{3})(\d{4})(\d{1,2})$/, "$1.$2.$3/$4-$5");
-    if (digitos.length > 8) return digitos.replace(/^(\d{2})(\d{3})(\d{3})(\d{1,4})$/, "$1.$2.$3/$4");
-    if (digitos.length > 5) return digitos.replace(/^(\d{2})(\d{3})(\d{1,3})$/, "$1.$2.$3");
-    if (digitos.length > 2) return digitos.replace(/^(\d{2})(\d{1,3})$/, "$1.$2");
-    return digitos;
-  }
-
-  function aplicarMascarasEEntradaNumerica() {
-    $("txtCnpj").addEventListener("input", (evento) => {
-      evento.target.value = aplicarMascaraCnpj(evento.target.value);
-    });
-    // Aceita 8 ou 9 dígitos para o número do telefone.
-    ["txtDdd", "txtNumeroTelefone", "txtCep"].forEach((id) => {
-      $(id).addEventListener("input", (evento) => {
-        evento.target.value = evento.target.value.replace(/\D/g, "");
-      });
-    });
-  }
-
-  function limparErros() {
-    form.querySelectorAll(".campo.has-error").forEach((campo) => campo.classList.remove("has-error"));
-    form.querySelectorAll(".field-error").forEach((span) => (span.hidden = true));
-    formAlert.hidden = true;
-  }
-
-  // P6 - verificação dos dados obrigatórios (RN0081/RN0082). Retorna os campos pendentes.
-  function validarObrigatorios() {
-    const pendentes = [];
-    CAMPOS_OBRIGATORIOS.forEach(({ name, label }) => {
-      const campo = form.querySelector(`[name="${CSS.escape(name)}"]`);
-      const valor = (campo.value || "").trim();
-      if (!valor) pendentes.push({ name, label, campo });
-    });
-    return pendentes;
-  }
-
-  // E1 - destaca os campos pendentes, mostra quais estão faltando e mantém os dados digitados.
-  function exibirErrosValidacao(pendentes) {
-    pendentes.forEach(({ name, campo }) => {
-      const wrapper = form.querySelector(`.campo[data-field="${CSS.escape(name)}"]`);
-      wrapper.classList.add("has-error");
-      const erro = wrapper.querySelector(".field-error");
-      if (erro) erro.hidden = false;
-    });
-    const labels = pendentes.map((p) => p.label);
-    const listaLabels =
-      labels.length > 1 ? labels.slice(0, -1).join(", ") + " e " + labels[labels.length - 1] : labels[0];
-    formAlertDetail.textContent = "Preencha: " + listaLabels + ". Os dados já digitados foram mantidos.";
-    formAlert.hidden = false;
-    pendentes[0].campo.focus();
-  }
-
-  form.addEventListener("submit", function (evento) {
-    evento.preventDefault(); // P5/A3.2 opção 'a' - Salvar
-    limparErros();
-
-    const pendentes = validarObrigatorios();
-    if (pendentes.length > 0) {
-      exibirErrosValidacao(pendentes); // E1
-      return;
-    }
-
-    // P7 (unicidade do CNPJ) e P8 (persistência) são do back-end e não são simulados aqui.
-    window.location.href = "index.html"; // P8.4 / volta a P1.2
+function aceitarSomenteDigitos(campo) {
+  campo.addEventListener("input", () => {
+    campo.value = somenteDigitos(campo.value);
   });
-
-  btnCancelar.addEventListener("click", function () {
-    window.location.href = "index.html"; // P5 opção 'b' / A3.2 opção 'b' / A1.2
+  campo.addEventListener("paste", (evento) => {
+    evento.preventDefault();
+    colarSomenteDigitos(campo, evento.clipboardData.getData("text"));
   });
+}
 
-  inicializar();
-})();
+function colarSomenteDigitos(campo, textoColado) {
+  campo.setRangeText(somenteDigitos(textoColado), campo.selectionStart, campo.selectionEnd, "end");
+  campo.value = campo.value.slice(0, campo.maxLength);
+}
+
+function aplicarSomenteLeitura() {
+  for (const campo of camposEditaveis()) {
+    if (campo.tagName === "SELECT") campo.disabled = true;
+    else campo.readOnly = true;
+  }
+  botaoSalvar.hidden = true;
+  $("requiredHint").hidden = true;
+}
+
+function camposEditaveis() {
+  return [...formulario.elements].filter((campo) => campo.name && campo.name !== "codigo");
+}
+
+async function preencherDadosIniciais() {
+  if (emInclusao) campoCnpj.value = parametrosDaUrl.get("cnpj") ?? "";
+  else await carregarFornecedor();
+}
+
+async function carregarFornecedor() {
+  try {
+    const fornecedor = await api.consultarPorCodigo(codigo);
+    preencherFormulario(fornecedor);
+    if (emVisualizacao) exibirStatusNoBadge($("statusBadge"), fornecedor.status);
+  } catch (erro) {
+    exibirAlerta("Não foi possível carregar o fornecedor", erro.message);
+    botaoSalvar.disabled = true;
+  }
+}
+
+function preencherFormulario(fornecedor) {
+  for (const campo of formulario.elements) {
+    if (campo.name) campo.value = lerValorDoCaminho(fornecedor, campo.name) ?? "";
+  }
+}
+
+function lerValorDoCaminho(objeto, caminho) {
+  return caminho.split(".").reduce((atual, chave) => atual?.[chave], objeto);
+}
+
+async function salvar(evento) {
+  evento.preventDefault();
+  limparErros();
+  const obrigatoriosVazios = camposObrigatoriosVazios(formulario);
+  if (obrigatoriosVazios.length > 0) exibirObrigatoriosVazios(obrigatoriosVazios);
+  else await enviarFornecedor();
+}
+
+function limparErros() {
+  limparErrosDosCampos(formulario);
+  alerta.hidden = true;
+}
+
+function exibirObrigatoriosVazios(campos) {
+  destacarCamposComErro(campos);
+  const rotulos = campos.map(rotuloDoCampo);
+  exibirAlerta("Existem campos obrigatórios não preenchidos", `Preencha: ${listarComE(rotulos)}. ${AVISO_DADOS_MANTIDOS}`);
+  campos[0].focus();
+}
+
+function rotuloDoCampo(campo) {
+  return campo.labels[0].firstChild.textContent.trim();
+}
+
+function listarComE(itens) {
+  if (itens.length === 1) return itens[0];
+  return `${itens.slice(0, -1).join(", ")} e ${itens.at(-1)}`;
+}
+
+async function enviarFornecedor() {
+  try {
+    const fornecedor = lerFormulario();
+    const salvo = emInclusao ? await api.incluir(fornecedor) : await api.alterar(codigo, fornecedor);
+    guardarMensagemDeSucesso(`Fornecedor ${salvo.codigo} ${modo.acaoConcluida} com sucesso.`);
+    voltarParaBusca();
+  } catch (erro) {
+    exibirAlerta("Não foi possível salvar o fornecedor", `${erro.message} ${AVISO_DADOS_MANTIDOS}`);
+  }
+}
+
+function lerFormulario() {
+  const fornecedor = { telefone: {}, endereco: {} };
+  for (const campo of camposEditaveis()) {
+    const valor = campo.value.trim();
+    const [nome, subcampo] = campo.name.split(".");
+    if (subcampo) fornecedor[nome][subcampo] = valor;
+    else fornecedor[nome] = valor;
+  }
+  return fornecedor;
+}
+
+function exibirAlerta(titulo, detalhe) {
+  $("formAlertTitulo").textContent = titulo;
+  $("formAlertDetail").textContent = detalhe;
+  alerta.hidden = false;
+  alerta.scrollIntoView({ block: "center" });
+}
+
+function voltarParaBusca() {
+  window.location.href = "index.html";
+}

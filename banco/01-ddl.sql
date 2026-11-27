@@ -10,6 +10,9 @@
 
 BEGIN;
 
+-- P1.1 / A8: os filtros de texto da busca ignoram acentos, como na Etapa 1.
+CREATE EXTENSION IF NOT EXISTS unaccent;
+
 -- -----------------------------------------------------------------------------
 -- Tabelas de domínio (pré-condição 7.2, RNF0013)
 -- A chave é o código já usado como valor dos combobox da Etapa 1 (D4).

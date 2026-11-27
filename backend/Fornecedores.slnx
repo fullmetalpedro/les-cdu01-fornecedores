@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="Fornecedores.Dominio/Fornecedores.Dominio.csproj" />
+  <Project Path="Fornecedores.Web/Fornecedores.Web.csproj" />
+</Solution>
