@@ -1,239 +1,222 @@
-/*
- * Telas 11.1 (Busca) e 11.2 (Resultado da Busca) – CDU01 Manter Cadastro de Fornecedores.
- * Dona: Pessoa A. Contrato com a Pessoa B: docs/contrato-integracao.md.
- */
-(function () {
-  const $ = (id) => document.getElementById(id);
+import { api } from "./api.js";
+import {
+  $, aplicarMascaraCnpj, carregarSessao, criarIcones, exibirStatusNoBadge, preencherCombo, retirarMensagemDeSucesso,
+  temPermissao,
+} from "./comum.js";
+import { abrirModalStatus } from "./status.js";
 
-  const form = $("frmBusca");
-  const campos = {
-    codigo: $("txtCodigo"),
-    razaoSocial: $("txtRazaoSocial"),
-    nomeFantasia: $("txtNomeFantasia"),
-    cnpj: $("txtCnpj"),
-    cidade: $("txtCidade"),
-    estado: $("cboEstado"),
-    status: $("cboStatus")
-  };
-  const botoes = {
-    novo: $("btnNovo"),
-    visualizar: $("btnVisualizar"),
-    alterar: $("btnAlterar"),
-    inativar: $("btnInativar"),
-    ativar: $("btnAtivar")
-  };
-  const tabela = $("tblResultado");
-  const corpoTabela = tabela.querySelector("tbody");
-  const msgNenhumEncontrado = $("msgNenhumEncontrado");
-  const CHAVE_PARAMETROS = "fornecedores.parametrosBusca";
+const CHAVE_PARAMETROS_DA_BUSCA = "fornecedores.parametrosBusca";
+const STATUS_TODOS = "TODOS";
 
-  // Estado da tela
-  let consultaRealizada = false;   // P1.3: Novo só depois de uma consulta
-  let parametrosAlterados = false; // P1.3: parâmetros mudaram depois da busca
-  let cnpjDaConsulta = "";         // P1.3: CNPJ usado como parâmetro vai para o novo cadastro
-  let resultado = [];
-  let selecionado = null;          // P1.3: somente um fornecedor pode ser selecionado
+const formulario = $("frmBusca");
+const campos = {
+  codigo: $("txtCodigo"),
+  razaoSocial: $("txtRazaoSocial"),
+  nomeFantasia: $("txtNomeFantasia"),
+  cnpj: $("txtCnpj"),
+  cidade: $("txtCidade"),
+  estado: $("cboEstado"),
+  status: $("cboStatus"),
+};
+const botaoBuscar = $("btnBuscar");
+const botoesDeAcao = {
+  novo: $("btnNovo"),
+  visualizar: $("btnVisualizar"),
+  alterar: $("btnAlterar"),
+  inativar: $("btnInativar"),
+  ativar: $("btnAtivar"),
+};
+const tabela = $("tblResultado");
+const corpoTabela = tabela.tBodies[0];
+const msgNenhumEncontrado = $("msgNenhumEncontrado");
+const msgSucesso = $("msgSucesso");
+const msgErro = $("msgErro");
 
-  // ---------- P3: identificação do usuário autenticado ----------
-  function exibirUsuario() {
-    $("lblNomeUsuario").textContent = usuarioLogado.nome;
-    $("lblPerfilUsuario").textContent = usuarioLogado.perfil;
-    $("lblIniciaisUsuario").textContent = usuarioLogado.nome
-      .split(" ").map((p) => p[0]).slice(0, 2).join("").toUpperCase();
-  }
+let consultaRealizada = false;
+let parametrosAlterados = false;
+let cnpjDaConsulta = "";
+let resultado = [];
+let selecionado = null;
 
-  const temPermissao = (botao) => usuarioLogado.permissoes.includes(botao.dataset.permissao);
+const { usuario, dominios } = await carregarSessao();
+prepararTela();
 
-  // ---------- RNF0013: combobox de Estado vem da tabela de domínio ----------
-  function carregarEstados() {
-    for (const { sigla, nome } of dominios.estados) {
-      campos.estado.add(new Option(sigla, sigla));
-      campos.estado.options[campos.estado.options.length - 1].title = nome;
-    }
-  }
-
-  // CNPJ Alfanumérico 18 tratado com a máscara 00.000.000/0000-00
-  function mascararCnpj(valor) {
-    const d = valor.replace(/\D/g, "").slice(0, 14);
-    return d
-      .replace(/^(\d{2})(\d)/, "$1.$2")
-      .replace(/^(\d{2})\.(\d{3})(\d)/, "$1.$2.$3")
-      .replace(/\.(\d{3})(\d)/, ".$1/$2")
-      .replace(/(\d{4})(\d)/, "$1-$2");
-  }
-
-  const normalizar = (texto) =>
-    (texto || "").normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase().trim();
-  const contem = (valor, filtro) => !filtro || normalizar(valor).includes(normalizar(filtro));
-  const soDigitos = (texto) => (texto || "").replace(/\D/g, "");
-
-  function lerParametros() {
-    return {
-      codigo: campos.codigo.value.trim(),
-      razaoSocial: campos.razaoSocial.value.trim(),
-      nomeFantasia: campos.nomeFantasia.value.trim(),
-      cnpj: campos.cnpj.value.trim(),
-      cidade: campos.cidade.value.trim(),
-      estado: campos.estado.value,
-      status: campos.status.value
-    };
-  }
-
-  // ---------- RF0085 / P1.1: parâmetros combinados ou isolados ----------
-  function filtrar(p) {
-    return fornecedores.filter((f) =>
-      contem(f.codigo, p.codigo) &&
-      contem(f.razaoSocial, p.razaoSocial) &&
-      contem(f.nomeFantasia, p.nomeFantasia) &&
-      (!soDigitos(p.cnpj) || soDigitos(f.cnpj).includes(soDigitos(p.cnpj))) &&
-      contem(f.endereco.cidade, p.cidade) &&
-      (!p.estado || f.endereco.estado === p.estado) &&
-      (p.status === "TODOS" || f.status === p.status)
-    );
-  }
-
-  // ---------- P1.2: o usuário solicita a busca ----------
-  function buscar() {
-    const parametros = lerParametros();
-    resultado = filtrar(parametros); // RNF0011: sem atraso artificial; a medição é do back-end
-    consultaRealizada = true;
-    parametrosAlterados = false;
-    cnpjDaConsulta = parametros.cnpj;
-    selecionado = null;
-    try { sessionStorage.setItem(CHAVE_PARAMETROS, JSON.stringify(parametros)); } catch (e) { /* opcional */ }
-    renderizarResultado();
-    atualizarBotoes();
-  }
-
-  // ---------- P1.3: lista com código, razão social, nome fantasia, CNPJ, cidade, estado e status ----------
-  function renderizarResultado() {
-    corpoTabela.replaceChildren();
-    const vazio = resultado.length === 0;
-    tabela.hidden = vazio;
-    msgNenhumEncontrado.hidden = !vazio; // E3: mensagem na própria tela de pesquisa
-
-    for (const f of resultado) {
-      const tr = document.createElement("tr");
-      tr.dataset.codigo = f.codigo;
-
-      const tdSelecao = document.createElement("td");
-      const radio = document.createElement("input");
-      radio.type = "radio";
-      radio.name = "fornecedorSelecionado";
-      radio.value = f.codigo;
-      radio.setAttribute("aria-label", `Selecionar ${f.razaoSocial}`);
-      tdSelecao.append(radio);
-      tr.append(tdSelecao);
-
-      const colunas = [f.codigo, f.razaoSocial, f.nomeFantasia, f.cnpj, f.endereco.cidade, f.endereco.estado];
-      colunas.forEach((valor, i) => {
-        const td = document.createElement("td");
-        td.textContent = valor;
-        if (i === 1) td.className = "razao";
-        tr.append(td);
-      });
-
-      const tdStatus = document.createElement("td");
-      const badge = document.createElement("span");
-      badge.className = `badge badge--${f.status === "ATIVO" ? "ativo" : "inativo"}`;
-      badge.textContent = f.status;
-      tdStatus.append(badge);
-      tr.append(tdStatus);
-
-      tr.addEventListener("click", () => selecionar(f.codigo));
-      corpoTabela.append(tr);
-    }
-  }
-
-  // P1.3: somente um fornecedor listado pode ser selecionado
-  function selecionar(codigo) {
-    selecionado = resultado.find((f) => f.codigo === codigo) || null;
-    for (const tr of corpoTabela.rows) {
-      const marcado = tr.dataset.codigo === codigo;
-      tr.classList.toggle("selecionado", marcado);
-      tr.querySelector("input[type=radio]").checked = marcado;
-    }
-    atualizarBotoes();
-  }
-
-  // ---------- P2: habilitação das opções (sempre conforme a permissão de acesso) ----------
-  function atualizarBotoes() {
-    const regras = {
-      novo: consultaRealizada && !parametrosAlterados,          // P1.3 / CA05
-      visualizar: !!selecionado,                                // P2
-      alterar: !!selecionado,                                   // P2
-      inativar: !!selecionado && selecionado.status === "ATIVO",  // P2 / RN0086
-      ativar: !!selecionado && selecionado.status === "INATIVO"   // P2 / RN0086
-    };
-    for (const [nome, habilitado] of Object.entries(regras)) {
-      botoes[nome].disabled = !(habilitado && temPermissao(botoes[nome]));
-    }
-  }
-
-  // P1.3: modificou os parâmetros, não é permitido inserir até uma nova busca
-  function aoAlterarParametro() {
-    if (!consultaRealizada || parametrosAlterados) return;
-    parametrosAlterados = true;
-    atualizarBotoes();
-  }
-
-  // ---------- Navegação (docs/contrato-integracao.md, seção 5) ----------
-  function irParaCadastro(modo, extras) {
-    const params = new URLSearchParams({ modo, ...extras });
-    window.location.href = `cadastro.html?${params}`;
-  }
-
-  // A4/A5: o modal é da Pessoa B (js/status.js)
-  function abrirStatus(operacao) {
-    const fornecedor = selecionado;
-    abrirModalStatus(fornecedor, operacao, ({ novoStatus }) => {
-      atualizarStatusFornecedor(fornecedor.codigo, novoStatus); // A4.4 / A5.4
-      buscar(); // A4.5 / A5.5: volta a P1.2
-    });
-  }
-
-  // P1.2 / P8.4 / A1.2: ao voltar para a busca, os últimos parâmetros são reapresentados
-  function restaurarParametros() {
-    let salvos = null;
-    try { salvos = JSON.parse(sessionStorage.getItem(CHAVE_PARAMETROS)); } catch (e) { /* opcional */ }
-    if (!salvos) return;
-    for (const [nome, campo] of Object.entries(campos)) {
-      if (salvos[nome] !== undefined) campo.value = salvos[nome];
-    }
-  }
-
-  // ---------- Eventos ----------
-  form.addEventListener("submit", (e) => {
-    e.preventDefault();
-    if (!temPermissao($("btnBuscar"))) return;
-    buscar();
-  });
-  for (const campo of Object.values(campos)) {
-    campo.addEventListener("input", aoAlterarParametro);
-    campo.addEventListener("change", aoAlterarParametro);
-  }
-  campos.cnpj.addEventListener("input", () => {
-    campos.cnpj.value = mascararCnpj(campos.cnpj.value);
-  });
-
-  // P2 opção a – Novo (segue P3); CNPJ da consulta recuperado no novo cadastro (P1.3 / P4.1)
-  botoes.novo.addEventListener("click", () =>
-    irParaCadastro("novo", cnpjDaConsulta ? { cnpj: cnpjDaConsulta } : {}));
-  // P2 opção b – Visualizar (A2 → A1)
-  botoes.visualizar.addEventListener("click", () =>
-    irParaCadastro("visualizar", { codigo: selecionado.codigo }));
-  // P2 opção c – Alterar (A2 → A3)
-  botoes.alterar.addEventListener("click", () =>
-    irParaCadastro("alterar", { codigo: selecionado.codigo }));
-  // P2 opções d/e – Inativar (A2 → A4) e Ativar (A2 → A5)
-  botoes.inativar.addEventListener("click", () => abrirStatus("inativar"));
-  botoes.ativar.addEventListener("click", () => abrirStatus("ativar"));
-
-  // ---------- Inicialização ----------
-  if (window.lucide) lucide.createIcons();
-  exibirUsuario();
-  carregarEstados();
+function prepararTela() {
+  preencherCombo(campos.estado, dominios.estados, { valor: "sigla", texto: "sigla" });
   restaurarParametros();
-  $("btnBuscar").disabled = !temPermissao($("btnBuscar"));
-  atualizarBotoes();
-})();
+  registrarEventos();
+  botaoBuscar.disabled = !podeUsar(botaoBuscar);
+  atualizarBotoesDeAcao();
+  criarIcones();
+  exibirMensagemDeSucessoPendente();
+}
+
+function restaurarParametros() {
+  const salvos = JSON.parse(sessionStorage.getItem(CHAVE_PARAMETROS_DA_BUSCA));
+  if (!salvos) return;
+  for (const [nome, campo] of Object.entries(campos)) {
+    campo.value = salvos[nome] ?? campo.value;
+  }
+}
+
+function registrarEventos() {
+  formulario.addEventListener("submit", buscarPeloFormulario);
+  for (const campo of Object.values(campos)) {
+    campo.addEventListener("input", marcarParametrosAlterados);
+    campo.addEventListener("change", marcarParametrosAlterados);
+  }
+  aplicarMascaraCnpj(campos.cnpj);
+
+  botoesDeAcao.novo.addEventListener("click", incluirNovo);
+  botoesDeAcao.visualizar.addEventListener("click", () => irParaCadastro("visualizar", { codigo: selecionado.codigo }));
+  botoesDeAcao.alterar.addEventListener("click", () => irParaCadastro("alterar", { codigo: selecionado.codigo }));
+  botoesDeAcao.inativar.addEventListener("click", () => abrirModalDeStatus("inativar"));
+  botoesDeAcao.ativar.addEventListener("click", () => abrirModalDeStatus("ativar"));
+}
+
+function buscarPeloFormulario(evento) {
+  evento.preventDefault();
+  msgSucesso.hidden = true;
+  buscar();
+}
+
+async function buscar() {
+  const parametros = lerParametros();
+  try {
+    resultado = await api.consultar(filtroDaConsulta(parametros));
+  } catch (erro) {
+    exibirMensagem(msgErro, erro.message);
+    return;
+  }
+  msgErro.hidden = true;
+  consultaRealizada = true;
+  parametrosAlterados = false;
+  cnpjDaConsulta = parametros.cnpj;
+  selecionado = null;
+  guardarParametros(parametros);
+  exibirResultado();
+  atualizarBotoesDeAcao();
+}
+
+function lerParametros() {
+  return Object.fromEntries(Object.entries(campos).map(([nome, campo]) => [nome, campo.value.trim()]));
+}
+
+function filtroDaConsulta(parametros) {
+  const { status, ...demais } = parametros;
+  const filtro = Object.fromEntries(Object.entries(demais).filter(([, valor]) => valor));
+  if (status && status !== STATUS_TODOS) filtro.status = status;
+  return filtro;
+}
+
+function guardarParametros(parametros) {
+  sessionStorage.setItem(CHAVE_PARAMETROS_DA_BUSCA, JSON.stringify(parametros));
+}
+
+function exibirResultado() {
+  const vazio = resultado.length === 0;
+  tabela.hidden = vazio;
+  msgNenhumEncontrado.hidden = !vazio;
+  corpoTabela.replaceChildren();
+  resultado.forEach(adicionarLinha);
+}
+
+function adicionarLinha(fornecedor) {
+  const linha = corpoTabela.insertRow();
+  linha.dataset.codigo = fornecedor.codigo;
+  linha.addEventListener("click", () => selecionar(fornecedor.codigo));
+
+  linha.insertCell().append(criarRadioDeSelecao(fornecedor));
+  adicionarCelula(linha, fornecedor.codigo);
+  adicionarCelula(linha, fornecedor.razaoSocial).classList.add("razao");
+  adicionarCelula(linha, fornecedor.nomeFantasia);
+  adicionarCelula(linha, fornecedor.cnpj);
+  adicionarCelula(linha, fornecedor.endereco.cidade);
+  adicionarCelula(linha, fornecedor.endereco.estado);
+  linha.insertCell().append(criarBadgeDeStatus(fornecedor.status));
+}
+
+function criarRadioDeSelecao(fornecedor) {
+  const radio = document.createElement("input");
+  radio.type = "radio";
+  radio.name = "fornecedorSelecionado";
+  radio.value = fornecedor.codigo;
+  radio.setAttribute("aria-label", `Selecionar ${fornecedor.razaoSocial}`);
+  return radio;
+}
+
+function adicionarCelula(linha, texto) {
+  const celula = linha.insertCell();
+  celula.textContent = texto;
+  return celula;
+}
+
+function criarBadgeDeStatus(status) {
+  const badge = document.createElement("span");
+  badge.className = "badge";
+  exibirStatusNoBadge(badge, status);
+  return badge;
+}
+
+function selecionar(codigo) {
+  selecionado = resultado.find((fornecedor) => fornecedor.codigo === codigo) ?? null;
+  for (const linha of corpoTabela.rows) {
+    const marcada = linha.dataset.codigo === codigo;
+    linha.classList.toggle("selecionado", marcada);
+    linha.querySelector("input[type=radio]").checked = marcada;
+  }
+  atualizarBotoesDeAcao();
+}
+
+function atualizarBotoesDeAcao() {
+  const liberadoPelaTela = {
+    novo: consultaRealizada && !parametrosAlterados,
+    visualizar: selecionado !== null,
+    alterar: selecionado !== null,
+    inativar: selecionado?.status === "ATIVO",
+    ativar: selecionado?.status === "INATIVO",
+  };
+  for (const [acao, botao] of Object.entries(botoesDeAcao)) {
+    botao.disabled = !(liberadoPelaTela[acao] && podeUsar(botao));
+  }
+}
+
+function podeUsar(botao) {
+  return temPermissao(usuario, botao.dataset.permissao);
+}
+
+function marcarParametrosAlterados() {
+  if (!consultaRealizada || parametrosAlterados) return;
+  parametrosAlterados = true;
+  atualizarBotoesDeAcao();
+}
+
+function incluirNovo() {
+  irParaCadastro("novo", cnpjDaConsulta ? { cnpj: cnpjDaConsulta } : {});
+}
+
+function irParaCadastro(modo, parametros) {
+  window.location.href = `cadastro.html?${new URLSearchParams({ modo, ...parametros })}`;
+}
+
+function abrirModalDeStatus(operacao) {
+  abrirModalStatus({
+    fornecedor: selecionado,
+    operacao,
+    dominios,
+    aoConcluir: async (mensagem) => {
+      exibirMensagem(msgSucesso, mensagem);
+      await buscar();
+    },
+  });
+}
+
+function exibirMensagemDeSucessoPendente() {
+  const mensagem = retirarMensagemDeSucesso();
+  if (mensagem) exibirMensagem(msgSucesso, mensagem);
+}
+
+function exibirMensagem(alerta, texto) {
+  alerta.querySelector("[data-texto]").textContent = texto;
+  alerta.hidden = false;
+}

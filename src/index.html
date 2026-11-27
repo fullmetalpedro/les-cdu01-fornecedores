@@ -11,7 +11,6 @@
   <link rel="stylesheet" href="css/status.css">
 </head>
 <body>
-  <!-- P3: identificação do usuário autenticado em todas as telas do cadastro -->
   <header class="topbar">
     <div class="topbar__marca">
       <i data-lucide="book-open" class="icone topbar__logo" aria-hidden="true"></i>
@@ -33,7 +32,15 @@
       <p>Pesquise para verificar se o fornecedor já possui cadastro antes de incluir um novo.</p>
     </div>
 
-    <!-- Tela 11.1 – Busca de fornecedores (P1.1 / RF0085) -->
+    <div id="msgSucesso" class="form-alert form-alert--sucesso" role="status" hidden>
+      <i data-lucide="circle-check" class="icone" aria-hidden="true"></i>
+      <span data-texto></span>
+    </div>
+    <div id="msgErro" class="form-alert" role="alert" hidden>
+      <i data-lucide="circle-alert" class="icone" aria-hidden="true"></i>
+      <span data-texto></span>
+    </div>
+
     <form id="frmBusca" class="painel busca" novalidate>
       <h2 class="painel__titulo">Parâmetros de busca</h2>
       <div class="linha">
@@ -73,14 +80,12 @@
             <option value="TODOS" selected>Todos</option>
           </select>
         </div>
-        <!-- P1.2 · Permissão de acesso: FORNECEDOR_CONSULTAR -->
-        <button type="submit" id="btnBuscar" class="botao botao--primario" data-permissao="FORNECEDOR_CONSULTAR">
+        <button type="submit" id="btnBuscar" class="botao botao--primario" data-permissao="FORNECEDOR_CONSULTAR" disabled>
           <i data-lucide="search" class="icone" aria-hidden="true"></i> Buscar
         </button>
       </div>
     </form>
 
-    <!-- Tela 11.2 – Resultado da busca (P1.3 / P2) -->
     <section class="painel resultado" aria-labelledby="lblContagem">
       <div class="resultado__barra">
         <h2 id="lblContagem" class="resultado__contagem">Resultado da busca</h2>
@@ -94,24 +99,23 @@
       </div>
 
       <div class="tabela-rolagem">
-      <table id="tblResultado" class="tabela" hidden>
-        <thead>
-          <tr>
-            <th class="col-selecao"><span class="sr-only">Selecionar</span></th>
-            <th>Código</th>
-            <th>Razão Social</th>
-            <th>Nome Fantasia</th>
-            <th>CNPJ</th>
-            <th>Cidade</th>
-            <th>Estado</th>
-            <th>Status</th>
-          </tr>
-        </thead>
-        <tbody></tbody>
-      </table>
+        <table id="tblResultado" class="tabela" hidden>
+          <thead>
+            <tr>
+              <th class="col-selecao"><span class="sr-only">Selecionar</span></th>
+              <th>Código</th>
+              <th>Razão Social</th>
+              <th>Nome Fantasia</th>
+              <th>CNPJ</th>
+              <th>Cidade</th>
+              <th>Estado</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
       </div>
 
-      <!-- E3: nenhum fornecedor encontrado, exibido na própria tela de pesquisa -->
       <div id="msgNenhumEncontrado" class="mensagem" role="status" hidden>
         <i data-lucide="search-x" class="icone icone--grande" aria-hidden="true"></i>
         <strong>Não foram encontrados fornecedores.</strong>
@@ -120,9 +124,6 @@
   </main>
 
   <script src="https://unpkg.com/lucide@0.469.0/dist/umd/lucide.min.js"></script>
-  <script src="js/dominios.js"></script>
-  <script src="js/mock-fornecedores.js"></script>
-  <script src="js/status.js"></script>
-  <script src="js/busca.js"></script>
+  <script type="module" src="js/busca.js"></script>
 </body>
 </html>

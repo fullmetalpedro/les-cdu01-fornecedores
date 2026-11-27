@@ -1,27 +1,29 @@
-// @ts-check
 const { defineConfig, devices } = require("@playwright/test");
+const { conexaoParaDotnet } = require("./tests/banco");
 
-const PORTA = 4173;
+const ENDERECO_DO_SERVIDOR = "http://localhost:4173";
 
 module.exports = defineConfig({
   testDir: "tests",
-  fullyParallel: true,
+  globalSetup: "./tests/preparar-banco.js",
+  workers: 1,
   reporter: [["list"], ["html", { open: "never" }]],
   use: {
-    baseURL: `http://localhost:${PORTA}`,
+    baseURL: ENDERECO_DO_SERVIDOR,
     viewport: { width: 1440, height: 900 },
-    trace: "retain-on-failure"
+    trace: "retain-on-failure",
   },
   projects: [
     {
       name: "chromium",
-      // PW_CHANNEL=msedge ou chrome usa o navegador instalado no lugar do Chromium do Playwright
-      use: { ...devices["Desktop Chrome"], channel: process.env.PW_CHANNEL || undefined }
-    }
+      use: { ...devices["Desktop Chrome"], channel: process.env.PW_CHANNEL || undefined },
+    },
   ],
   webServer: {
-    command: "node tests/servidor.js",
-    url: `http://localhost:${PORTA}/index.html`,
-    reuseExistingServer: !process.env.CI
-  }
+    command: `dotnet run --project backend/Fornecedores.Web --urls ${ENDERECO_DO_SERVIDOR}`,
+    url: `${ENDERECO_DO_SERVIDOR}/index.html`,
+    env: { ConnectionStrings__Fornecedores: conexaoParaDotnet() },
+    reuseExistingServer: !process.env.CI,
+    timeout: 180_000,
+  },
 });

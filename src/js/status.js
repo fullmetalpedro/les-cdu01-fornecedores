@@ -1,34 +1,98 @@
-/*
- * Tela 11.4 (Inativação e Ativação) – CDU01 Manter Cadastro de Fornecedores.
- * Dona: Pessoa B. Função exposta conforme docs/contrato-integracao.md, seção 5.
- */
+import { api } from "./api.js";
+import {
+  camposObrigatoriosVazios, criarIcones, destacarCamposComErro, limparErrosDosCampos, preencherCombo,
+} from "./comum.js";
 
-/**
- * Abre a tela 11.4 sobre a tela de busca.
- * @param {object} fornecedor  objeto no formato do contrato (seção 2)
- * @param {"inativar"|"ativar"} operacao
- * @param {function} [aoConcluir] callback opcional chamado após Confirmar válido
- */
-function abrirModalStatus(fornecedor, operacao, aoConcluir) {
-  "use strict";
+const OPERACOES = {
+  inativar: {
+    titulo: "Inativar Fornecedor",
+    substantivo: "inativação",
+    participio: "inativado",
+    icone: "ban",
+    classeIcone: "icon-inativar",
+    classeBotao: "botao--perigo",
+    categorias: (dominios) => dominios.categoriasInativacao,
+    enviar: api.inativar,
+  },
+  ativar: {
+    titulo: "Ativar Fornecedor",
+    substantivo: "ativação",
+    participio: "ativado",
+    icone: "circle-check",
+    classeIcone: "icon-ativar",
+    classeBotao: "botao--primario",
+    categorias: (dominios) => dominios.categoriasAtivacao,
+    enviar: api.ativar,
+  },
+};
 
-  const isInativar = operacao === "inativar";
-  // RN0084 (inativação) / RN0085 (ativação) - categorias carregadas como domínio (RNF0013).
-  const categorias = isInativar ? dominios.categoriasInativacao : dominios.categoriasAtivacao;
+export function abrirModalStatus({ fornecedor, operacao: nomeDaOperacao, dominios, aoConcluir }) {
+  const operacao = OPERACOES[nomeDaOperacao];
+  const modal = criarModal(operacao);
+  const elemento = (seletor) => modal.querySelector(seletor);
+  const categoria = elemento("#cboCategoria");
+  const justificativa = elemento("#txtJustificativa");
+  const alerta = elemento("#modalStatusAlert");
+  const botaoConfirmar = elemento("#btnConfirmarStatus");
 
-  const overlay = document.createElement("div");
-  overlay.className = "modal-overlay";
-  // Apenas a estrutura estática vai para o innerHTML; os dados do fornecedor (razão
-  // social, CNPJ etc.) são preenchidos depois via textContent para não permitir
-  // injeção de HTML a partir de dados que, na entrega final, vêm do usuário.
-  overlay.innerHTML = `
-    <div class="modal-card" role="dialog" aria-modal="true">
+  elemento(".modal-subtitle").textContent = `${fornecedor.codigo} · ${fornecedor.razaoSocial} · ${fornecedor.cnpj}`;
+  preencherCombo(categoria, operacao.categorias(dominios));
+  elemento("#btnCancelarStatus").addEventListener("click", fechar);
+  botaoConfirmar.addEventListener("click", confirmar);
+  document.body.append(modal);
+  criarIcones();
+
+  async function confirmar() {
+    limparErros();
+    const obrigatoriosVazios = camposObrigatoriosVazios(modal);
+    if (obrigatoriosVazios.length > 0) exibirObrigatoriosVazios(obrigatoriosVazios);
+    else await enviar();
+  }
+
+  function limparErros() {
+    limparErrosDosCampos(modal);
+    alerta.hidden = true;
+  }
+
+  function exibirObrigatoriosVazios(campos) {
+    destacarCamposComErro(campos);
+    exibirErro(`Informe a ${campos[0].name} da ${operacao.substantivo}.`);
+  }
+
+  async function enviar() {
+    botaoConfirmar.disabled = true;
+    try {
+      await operacao.enviar(fornecedor.codigo, { categoria: categoria.value, justificativa: justificativa.value.trim() });
+    } catch (erro) {
+      exibirErro(erro.message);
+      botaoConfirmar.disabled = false;
+      return;
+    }
+    fechar();
+    aoConcluir(`Fornecedor ${fornecedor.codigo} ${operacao.participio} com sucesso.`);
+  }
+
+  function exibirErro(mensagem) {
+    elemento("#modalStatusAlertText").textContent = mensagem;
+    alerta.hidden = false;
+  }
+
+  function fechar() {
+    modal.remove();
+  }
+}
+
+function criarModal(operacao) {
+  const modal = document.createElement("div");
+  modal.className = "modal-overlay";
+  modal.innerHTML = `
+    <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="lblTituloModal">
       <div class="modal-header">
-        <span class="modal-icon ${isInativar ? "icon-inativar" : "icon-ativar"}">
-          <i data-lucide="${isInativar ? "ban" : "circle-check"}" class="icone" aria-hidden="true"></i>
+        <span class="modal-icon ${operacao.classeIcone}">
+          <i data-lucide="${operacao.icone}" class="icone" aria-hidden="true"></i>
         </span>
         <div>
-          <h2 class="modal-title"></h2>
+          <h2 id="lblTituloModal" class="modal-title">${operacao.titulo}</h2>
           <p class="modal-subtitle"></p>
         </div>
       </div>
@@ -38,7 +102,7 @@ function abrirModalStatus(fornecedor, operacao, aoConcluir) {
           <span id="modalStatusAlertText"></span>
         </div>
         <div class="campo" data-field="categoria">
-          <label for="cboCategoria">${isInativar ? "Categoria de inativação" : "Categoria de ativação"} <span class="obrigatorio">*</span></label>
+          <label for="cboCategoria">Categoria de ${operacao.substantivo} <span class="obrigatorio">*</span></label>
           <select id="cboCategoria" name="categoria">
             <option value="">Selecione</option>
           </select>
@@ -53,90 +117,9 @@ function abrirModalStatus(fornecedor, operacao, aoConcluir) {
       </div>
       <div class="modal-actions">
         <button type="button" class="botao" id="btnCancelarStatus">Cancelar</button>
-        <button type="button" class="botao ${isInativar ? "botao--perigo" : "botao--primario"}" id="btnConfirmarStatus">Confirmar</button>
+        <button type="button" class="botao ${operacao.classeBotao}" id="btnConfirmarStatus">Confirmar</button>
       </div>
     </div>
   `;
-
-  overlay.querySelector(".modal-title").textContent = isInativar ? "Inativar Fornecedor" : "Ativar Fornecedor";
-  overlay.querySelector(".modal-subtitle").textContent =
-    `${fornecedor.codigo} · ${fornecedor.razaoSocial} · ${fornecedor.cnpj}`;
-
-  document.body.appendChild(overlay);
-  if (window.lucide) lucide.createIcons();
-
-  const cboCategoria = overlay.querySelector("#cboCategoria");
-  categorias.forEach((categoria) => {
-    const option = document.createElement("option");
-    option.value = categoria.codigo;
-    option.textContent = categoria.nome;
-    cboCategoria.appendChild(option);
-  });
-
-  // Tabela 11.4 - Confirmar exige FORNECEDOR_INATIVAR ou FORNECEDOR_ATIVAR.
-  const btnConfirmar = overlay.querySelector("#btnConfirmarStatus");
-  btnConfirmar.disabled = !usuarioLogado.permissoes.includes(
-    isInativar ? "FORNECEDOR_INATIVAR" : "FORNECEDOR_ATIVAR"
-  );
-
-  const txtJustificativa = overlay.querySelector("#txtJustificativa");
-  const alertBox = overlay.querySelector("#modalStatusAlert");
-  const alertText = overlay.querySelector("#modalStatusAlertText");
-
-  function fecharModal() {
-    overlay.remove();
-  }
-
-  function limparErros() {
-    overlay.querySelectorAll(".campo.has-error").forEach((campo) => campo.classList.remove("has-error"));
-    overlay.querySelectorAll(".field-error").forEach((span) => (span.hidden = true));
-    alertBox.hidden = true;
-  }
-
-  // A4.3 / A5.3 - verifica se a categoria e a justificativa foram informadas.
-  function validar() {
-    limparErros();
-    const categoriaPreenchida = !!cboCategoria.value;
-    const justificativaPreenchida = !!txtJustificativa.value.trim();
-
-    if (categoriaPreenchida && justificativaPreenchida) return true;
-
-    // E4 - mensagem indicando o campo não informado, retorna a A4.1/A5.1.
-    const camposFaltando = [];
-    if (!categoriaPreenchida) {
-      camposFaltando.push({ seletor: '[data-field="categoria"]', mensagem: "Informe a categoria da " + (isInativar ? "inativação" : "ativação") + "." });
-    }
-    if (!justificativaPreenchida) {
-      camposFaltando.push({ seletor: '[data-field="justificativa"]', mensagem: "Informe a justificativa da " + (isInativar ? "inativação" : "ativação") + "." });
-    }
-
-    camposFaltando.forEach(({ seletor, mensagem }) => {
-      const campo = overlay.querySelector(seletor);
-      campo.classList.add("has-error");
-      const erro = campo.querySelector(".field-error");
-      if (erro) erro.hidden = false;
-    });
-
-    alertText.textContent = camposFaltando[0].mensagem;
-    alertBox.hidden = false;
-    return false;
-  }
-
-  overlay.querySelector("#btnCancelarStatus").addEventListener("click", function () {
-    fecharModal(); // A4.2/A5.2 opção Cancelar - volta a P1.2 (fecha o modal sobre a busca)
-  });
-
-  btnConfirmar.addEventListener("click", function () {
-    if (!validar()) return; // E4
-
-    // A4.4/A5.4 - altera o status, persiste categoria/justificativa (back-end, fora do escopo).
-    fecharModal();
-    if (typeof aoConcluir === "function") {
-      aoConcluir({
-        categoria: cboCategoria.value,
-        justificativa: txtJustificativa.value.trim(),
-        novoStatus: isInativar ? "INATIVO" : "ATIVO",
-      });
-    }
-  });
+  return modal;
 }
