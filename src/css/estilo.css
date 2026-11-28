@@ -255,7 +255,7 @@ input[readonly], select:disabled {
 .resultado__contagem { font-size: 14px; font-weight: 600; }
 .resultado__acoes { display: flex; gap: 8px; flex-wrap: wrap; }
 
-.tabela-rolagem { overflow-x: auto; }
+.tabela-rolagem { overflow-x: auto; overflow-y: hidden; }
 .tabela { width: 100%; border-collapse: collapse; }
 .tabela th, .tabela td { white-space: nowrap; }
 .tabela th {
