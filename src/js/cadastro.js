@@ -131,6 +131,7 @@ function listarComE(itens) {
 }
 
 async function enviarFornecedor() {
+  botaoSalvar.disabled = true;
   try {
     const fornecedor = lerFormulario();
     const salvo = emInclusao ? await api.incluir(fornecedor) : await api.alterar(codigo, fornecedor);
@@ -138,6 +139,7 @@ async function enviarFornecedor() {
     voltarParaBusca();
   } catch (erro) {
     exibirAlerta("Não foi possível salvar o fornecedor", `${erro.message} ${AVISO_DADOS_MANTIDOS}`);
+    botaoSalvar.disabled = false;
   }
 }
 
@@ -156,7 +158,7 @@ function exibirAlerta(titulo, detalhe) {
   $("formAlertTitulo").textContent = titulo;
   $("formAlertDetail").textContent = detalhe;
   alerta.hidden = false;
-  alerta.scrollIntoView({ block: "center" });
+  alerta.scrollIntoView({ block: "center", behavior: "smooth" });
 }
 
 function voltarParaBusca() {

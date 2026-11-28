@@ -86,6 +86,27 @@ test.describe("11.1 Busca (P1.1, P1.2)", () => {
     await expect(page.locator("#txtRazaoSocial")).toHaveValue("Horizonte");
     await esperarBotoesHabilitados(page, []);
   });
+
+  test("Enter no CNPJ busca e Novo continua clicável ao sair do campo", async ({ page }) => {
+    await page.locator("#txtCnpj").fill(CNPJ_NAO_CADASTRADO);
+    await page.locator("#txtCnpj").press("Enter");
+    await expect(page.locator("#msgNenhumEncontrado")).toBeVisible();
+
+    await page.locator("#btnNovo").click();
+
+    await expect(page).toHaveURL(/cadastro\.html\?modo=novo/);
+  });
+
+  test("erro do servidor aparece num toast de erro e não muda o resultado", async ({ page }) => {
+    await page.route("**/api/fornecedores*", (rota) =>
+      rota.fulfill({ status: 500, json: { mensagens: ["Banco de dados indisponível."] } }));
+
+    await buscar(page);
+
+    await expect(page.locator(".toast--erro")).toContainText("Banco de dados indisponível.");
+    await expect(linhasDoResultado(page)).toHaveCount(0);
+    await esperarBotoesHabilitados(page, []);
+  });
 });
 
 test.describe("11.2 Resultado – regras de habilitação (P1.3, P2)", () => {

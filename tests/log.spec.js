@@ -10,14 +10,14 @@ async function cadastrarFornecedorValido(page) {
   await abrirInclusao(page);
   await preencherFornecedorValido(page);
   await salvar(page);
-  await expect(page.locator("#msgSucesso")).toBeVisible();
+  await expect(page.locator(".toast--sucesso")).toBeVisible();
 }
 
 async function alterarNomeFantasia(page, codigo, nomeFantasia) {
   await abrirAlteracao(page, codigo);
   await page.locator("#txtNomeFantasia").fill(nomeFantasia);
   await salvar(page);
-  await expect(page.locator("#msgSucesso")).toBeVisible();
+  await expect(page.locator(".toast--sucesso")).toBeVisible();
 }
 
 function lerLogDoFornecedor(codigo) {

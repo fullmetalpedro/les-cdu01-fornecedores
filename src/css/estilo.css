@@ -1,4 +1,7 @@
 :root {
+  --ease: cubic-bezier(.65, 0, .35, 1);
+  --duracao: 240ms;
+  --duracao-rapida: 160ms;
   --bg: #F4F5F7;
   --surface: #FFFFFF;
   --border: #D5DAE1;
@@ -18,6 +21,24 @@
 }
 
 * { box-sizing: border-box; }
+
+@view-transition { navigation: auto; }
+::view-transition-group(*),
+::view-transition-old(*),
+::view-transition-new(*) {
+  animation-duration: var(--duracao);
+  animation-timing-function: var(--ease);
+}
+
+@keyframes surgir {
+  from { opacity: 0; transform: translateY(6px); }
+}
+@keyframes aparecer {
+  from { opacity: 0; }
+}
+@keyframes desaparecer {
+  to { opacity: 0; }
+}
 
 body {
   margin: 0;
@@ -44,6 +65,7 @@ h1, h2 { margin: 0; }
   justify-content: space-between;
   background: var(--surface);
   border-bottom: 1px solid var(--border);
+  view-transition-name: topbar;
 }
 .topbar__marca { display: flex; align-items: center; gap: 10px; font-size: 16px; }
 .topbar__area { color: var(--muted); font-size: 14px; }
@@ -91,6 +113,10 @@ input, select, textarea {
   background: var(--surface);
   color: var(--text);
   font: inherit;
+  transition:
+    border-color var(--duracao-rapida) var(--ease),
+    background-color var(--duracao-rapida) var(--ease),
+    box-shadow var(--duracao-rapida) var(--ease);
 }
 select {
   appearance: none;
@@ -124,7 +150,7 @@ select:disabled { cursor: not-allowed; opacity: 1; }
     height: 16px;
     margin-left: auto;
     background: var(--seta-do-combo) no-repeat center / 16px;
-    transition: rotate .2s ease;
+    transition: rotate var(--duracao) var(--ease);
   }
   select:open::picker-icon { rotate: 180deg; }
   select:open { border-color: var(--primary); box-shadow: 0 0 0 2px var(--primary-soft); }
@@ -171,7 +197,7 @@ input[readonly], select:disabled {
   border-color: var(--danger);
   background: var(--danger-soft);
 }
-.field-error { font-size: 12px; color: var(--danger); }
+.field-error { font-size: 12px; color: var(--danger); animation: surgir var(--duracao) var(--ease); }
 
 .form-alert {
   display: flex;
@@ -183,11 +209,7 @@ input[readonly], select:disabled {
   border-radius: var(--radius);
   padding: 14px 16px;
   margin: 20px 28px 0;
-}
-.form-alert--sucesso {
-  background: var(--success-soft);
-  border-color: var(--success);
-  color: var(--success);
+  animation: surgir var(--duracao) var(--ease);
 }
 .form-alert strong {
   display: block;
@@ -205,8 +227,14 @@ input[readonly], select:disabled {
   color: var(--text);
   font: inherit; font-weight: 600;
   cursor: pointer;
+  transition:
+    background-color var(--duracao-rapida) var(--ease),
+    border-color var(--duracao-rapida) var(--ease),
+    color var(--duracao-rapida) var(--ease),
+    transform var(--duracao-rapida) var(--ease);
 }
 .botao:hover:not(:disabled) { background: var(--primary-soft); }
+.botao:active:not(:disabled) { transform: scale(.97); }
 .botao--primario { background: var(--primary); border-color: var(--primary); color: #fff; }
 .botao--primario:hover:not(:disabled) { background: #183F62; }
 .botao--perigo { color: var(--danger); }
@@ -240,7 +268,12 @@ input[readonly], select:disabled {
 }
 .tabela td { height: 52px; padding: 0 12px; border-bottom: 1px solid var(--border); color: var(--muted); }
 .tabela tbody tr:last-child td { border-bottom: 0; }
-.tabela tbody tr { cursor: pointer; }
+.tabela tbody tr {
+  cursor: pointer;
+  transition: background-color var(--duracao-rapida) var(--ease);
+  animation: surgir var(--duracao) var(--ease) both;
+  animation-delay: calc(min(var(--ordem, 0), 10) * 30ms);
+}
 .tabela tbody tr:hover { background: #F8FAFC; }
 .tabela tbody tr.selecionado { background: var(--primary-soft); }
 .tabela td.razao { color: var(--text); font-weight: 500; }
@@ -260,6 +293,7 @@ input[readonly], select:disabled {
   padding: 56px 20px;
   display: flex; flex-direction: column; align-items: center; gap: 8px;
   color: var(--muted); text-align: center;
+  animation: surgir var(--duracao) var(--ease);
 }
 .mensagem strong { color: var(--text); font-size: 16px; }
 
@@ -267,3 +301,75 @@ input[readonly], select:disabled {
 svg.icone { display: inline-block; }
 .topbar__logo { width: 22px; height: 22px; color: var(--primary); }
 .icone--grande { width: 28px; height: 28px; color: var(--primary); }
+
+.toasts {
+  position: fixed;
+  top: 76px;
+  right: 24px;
+  z-index: 200;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: min(380px, calc(100vw - 32px));
+}
+.toast {
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 14px 12px 14px 16px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--cor-do-toast);
+  border-radius: 8px;
+  box-shadow: 0 12px 32px -8px rgba(15, 27, 43, .28);
+  color: var(--text);
+  animation: entrar-toast var(--duracao) var(--ease);
+}
+.toast--sucesso { --cor-do-toast: var(--success); }
+.toast--erro { --cor-do-toast: var(--danger); }
+.toast > .icone { margin-top: 1px; color: var(--cor-do-toast); }
+.toast__texto { flex: 1; line-height: 1.45; }
+.toast__fechar {
+  display: grid; place-items: center;
+  width: 24px; height: 24px; padding: 0;
+  border: 0; border-radius: 4px;
+  background: transparent; color: var(--muted);
+  cursor: pointer;
+  transition: background-color var(--duracao-rapida) var(--ease), color var(--duracao-rapida) var(--ease);
+}
+.toast__fechar:hover { background: var(--bg); color: var(--text); }
+.toast--sucesso::after {
+  content: "";
+  position: absolute;
+  left: 0; right: 0; bottom: 0;
+  height: 3px;
+  background: var(--cor-do-toast);
+  opacity: .35;
+  transform-origin: left;
+  animation: contagem-do-toast 5s linear forwards;
+}
+.toast:hover::after { animation-play-state: paused; }
+.toast.saindo { animation: sair-toast var(--duracao) var(--ease) forwards; }
+.toast.saindo::after { animation: none; }
+
+@keyframes entrar-toast {
+  from { opacity: 0; transform: translateX(24px); }
+}
+@keyframes sair-toast {
+  to { opacity: 0; transform: translateX(24px); }
+}
+@keyframes contagem-do-toast {
+  to { transform: scaleX(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after,
+  ::view-transition-group(*), ::view-transition-old(*), ::view-transition-new(*) {
+    animation-duration: 1ms !important;
+    animation-delay: 0ms !important;
+    transition-duration: 1ms !important;
+  }
+  .toast--sucesso::after { animation-duration: 5s !important; opacity: 0; }
+}
