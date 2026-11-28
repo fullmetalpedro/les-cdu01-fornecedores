@@ -1,6 +1,7 @@
 import { api } from "./api.js";
 import {
   camposObrigatoriosVazios, criarIcones, destacarCamposComErro, limparErrosDosCampos, preencherCombo,
+  removerComAnimacao,
 } from "./comum.js";
 
 const OPERACOES = {
@@ -78,7 +79,7 @@ export function abrirModalStatus({ fornecedor, operacao: nomeDaOperacao, dominio
   }
 
   function fechar() {
-    modal.remove();
+    removerComAnimacao(modal);
   }
 }
 

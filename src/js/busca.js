@@ -1,7 +1,7 @@
 import { api } from "./api.js";
 import {
-  $, aplicarMascaraCnpj, carregarSessao, criarIcones, exibirStatusNoBadge, preencherCombo, retirarMensagemDeSucesso,
-  temPermissao,
+  $, aplicarMascaraCnpj, carregarSessao, criarIcones, exibirStatusNoBadge, fecharNotificacoes, notificar,
+  preencherCombo, retirarMensagemDeSucesso, temPermissao,
 } from "./comum.js";
 import { abrirModalStatus } from "./status.js";
 
@@ -29,12 +29,8 @@ const botoesDeAcao = {
 const tabela = $("tblResultado");
 const corpoTabela = tabela.tBodies[0];
 const msgNenhumEncontrado = $("msgNenhumEncontrado");
-const msgSucesso = $("msgSucesso");
-const msgErro = $("msgErro");
 
-let consultaRealizada = false;
-let parametrosAlterados = false;
-let cnpjDaConsulta = "";
+let parametrosDaConsulta = null;
 let resultado = [];
 let selecionado = null;
 
@@ -61,11 +57,11 @@ function restaurarParametros() {
 
 function registrarEventos() {
   formulario.addEventListener("submit", buscarPeloFormulario);
-  for (const campo of Object.values(campos)) {
-    campo.addEventListener("input", marcarParametrosAlterados);
-    campo.addEventListener("change", marcarParametrosAlterados);
-  }
   aplicarMascaraCnpj(campos.cnpj);
+  for (const campo of Object.values(campos)) {
+    campo.addEventListener("input", atualizarBotoesDeAcao);
+    campo.addEventListener("change", atualizarBotoesDeAcao);
+  }
 
   botoesDeAcao.novo.addEventListener("click", incluirNovo);
   botoesDeAcao.visualizar.addEventListener("click", () => irParaCadastro("visualizar", { codigo: selecionado.codigo }));
@@ -76,7 +72,7 @@ function registrarEventos() {
 
 function buscarPeloFormulario(evento) {
   evento.preventDefault();
-  msgSucesso.hidden = true;
+  fecharNotificacoes();
   buscar();
 }
 
@@ -85,13 +81,10 @@ async function buscar() {
   try {
     resultado = await api.consultar(filtroDaConsulta(parametros));
   } catch (erro) {
-    exibirMensagem(msgErro, erro.message);
+    notificar(erro.message, "erro");
     return;
   }
-  msgErro.hidden = true;
-  consultaRealizada = true;
-  parametrosAlterados = false;
-  cnpjDaConsulta = parametros.cnpj;
+  parametrosDaConsulta = parametros;
   selecionado = null;
   guardarParametros(parametros);
   exibirResultado();
@@ -121,9 +114,10 @@ function exibirResultado() {
   resultado.forEach(adicionarLinha);
 }
 
-function adicionarLinha(fornecedor) {
+function adicionarLinha(fornecedor, ordem) {
   const linha = corpoTabela.insertRow();
   linha.dataset.codigo = fornecedor.codigo;
+  linha.style.setProperty("--ordem", ordem);
   linha.addEventListener("click", () => selecionar(fornecedor.codigo));
 
   linha.insertCell().append(criarRadioDeSelecao(fornecedor));
@@ -170,7 +164,7 @@ function selecionar(codigo) {
 
 function atualizarBotoesDeAcao() {
   const liberadoPelaTela = {
-    novo: consultaRealizada && !parametrosAlterados,
+    novo: parametrosDaConsulta !== null && !parametrosAlterados(),
     visualizar: selecionado !== null,
     alterar: selecionado !== null,
     inativar: selecionado?.status === "ATIVO",
@@ -185,14 +179,13 @@ function podeUsar(botao) {
   return temPermissao(usuario, botao.dataset.permissao);
 }
 
-function marcarParametrosAlterados() {
-  if (!consultaRealizada || parametrosAlterados) return;
-  parametrosAlterados = true;
-  atualizarBotoesDeAcao();
+function parametrosAlterados() {
+  return JSON.stringify(lerParametros()) !== JSON.stringify(parametrosDaConsulta);
 }
 
 function incluirNovo() {
-  irParaCadastro("novo", cnpjDaConsulta ? { cnpj: cnpjDaConsulta } : {});
+  const { cnpj } = parametrosDaConsulta;
+  irParaCadastro("novo", cnpj ? { cnpj } : {});
 }
 
 function irParaCadastro(modo, parametros) {
@@ -205,7 +198,7 @@ function abrirModalDeStatus(operacao) {
     operacao,
     dominios,
     aoConcluir: async (mensagem) => {
-      exibirMensagem(msgSucesso, mensagem);
+      notificar(mensagem);
       await buscar();
     },
   });
@@ -213,10 +206,5 @@ function abrirModalDeStatus(operacao) {
 
 function exibirMensagemDeSucessoPendente() {
   const mensagem = retirarMensagemDeSucesso();
-  if (mensagem) exibirMensagem(msgSucesso, mensagem);
-}
-
-function exibirMensagem(alerta, texto) {
-  alerta.querySelector("[data-texto]").textContent = texto;
-  alerta.hidden = false;
+  if (mensagem) notificar(mensagem);
 }

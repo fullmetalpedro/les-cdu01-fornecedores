@@ -77,7 +77,7 @@ test.describe("11.3 Inclusão (P4, P5, P6)", () => {
     await salvar(page);
 
     await expect(page).toHaveURL(/index\.html/);
-    await expect(page.locator("#msgSucesso")).toContainText("Fornecedor FOR-000007 cadastrado com sucesso.");
+    await expect(page.locator(".toast--sucesso")).toContainText("Fornecedor FOR-000007 cadastrado com sucesso.");
     await buscarPorCodigo(page, "FOR-000007");
     await expect(statusNaTabela(page, "FOR-000007")).toHaveText("ATIVO");
   });
@@ -164,7 +164,7 @@ test.describe("11.3 Alteração (A3)", () => {
 
     await salvar(page);
 
-    await expect(page.locator("#msgSucesso")).toContainText("Fornecedor FOR-000003 alterado com sucesso.");
+    await expect(page.locator(".toast--sucesso")).toContainText("Fornecedor FOR-000003 alterado com sucesso.");
     await abrirVisualizacao(page, "FOR-000003");
     await expect(page.locator("#txtNomeFantasia")).toHaveValue("Páginas & Companhia");
     await expect(page.locator("#statusBadge")).toHaveText("INATIVO");

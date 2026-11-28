@@ -38,7 +38,7 @@ test.describe("11.4 Inativar (A4, RN0084)", () => {
 
     await expect(page.locator(".modal-overlay")).toHaveCount(0);
     await expect(page.locator("#tblResultado")).toBeVisible();
-    await expect(page.locator("#msgSucesso")).toContainText("FOR-000001 inativado com sucesso");
+    await expect(page.locator(".toast--sucesso")).toContainText("FOR-000001 inativado com sucesso");
   });
 
   test("Cancelar fecha o modal", async ({ page }) => {
@@ -88,11 +88,19 @@ test.describe("Atualização do status (A4.4 / A5.4)", () => {
 
   test("a mensagem de sucesso some quando o usuário faz uma nova busca", async ({ page }) => {
     await mudarStatus(page, "FOR-000001", "Inativar");
-    await expect(page.locator("#msgSucesso")).toBeVisible();
+    await expect(page.locator(".toast--sucesso")).toBeVisible();
 
     await buscar(page);
 
-    await expect(page.locator("#msgSucesso")).toBeHidden();
+    await expect(page.locator(".toast--sucesso")).toBeHidden();
+  });
+
+  test("a mensagem de sucesso fecha pelo botão do toast", async ({ page }) => {
+    await mudarStatus(page, "FOR-000001", "Inativar");
+
+    await page.getByRole("button", { name: "Fechar notificação" }).click();
+
+    await expect(page.locator(".toast")).toHaveCount(0);
   });
 
   test("Cancelar não altera o status", async ({ page }) => {
