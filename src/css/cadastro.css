@@ -1,3 +1,8 @@
+html {
+  scrollbar-width: none;
+  scroll-padding-bottom: 96px;
+}
+
 .cabecalho--cadastro {
   display: flex;
   align-items: baseline;
@@ -21,6 +26,10 @@
   gap: 24px;
   padding: 28px;
   border-bottom: 1px solid var(--border);
+}
+
+.secao:last-of-type {
+  border-bottom: 0;
 }
 
 .secao__desc {
@@ -54,8 +63,13 @@
 }
 
 .form-actions {
+  position: sticky;
+  bottom: 0;
   display: flex;
   justify-content: flex-end;
   gap: 12px;
   padding: 20px 28px;
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+  border-radius: 0 0 9px 9px;
 }
