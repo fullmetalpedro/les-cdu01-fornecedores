@@ -13,7 +13,8 @@ builder.Services
         opcoes.Filters.Add<TratadorDeExcecoes>();
         opcoes.SuppressImplicitRequiredAttributeForNonNullableReferenceTypes = true;
     })
-    .AddJsonOptions(opcoes => opcoes.JsonSerializerOptions.RespectNullableAnnotations = true);
+    .AddJsonOptions(opcoes => opcoes.JsonSerializerOptions.RespectNullableAnnotations = true)
+    .ConfigureApiBehaviorOptions(opcoes => opcoes.InvalidModelStateResponseFactory = RespostaDeErro.FormatoInvalido);
 
 builder.Services.AddSingleton(_ => NpgsqlDataSource.Create(configuracao.GetConnectionString("Fornecedores")!));
 builder.Services.AddSingleton(configuracao.GetRequiredSection("UsuarioAutenticado").Get<UsuarioAutenticado>()!);

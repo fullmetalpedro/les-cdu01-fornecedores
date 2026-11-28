@@ -18,10 +18,10 @@ public sealed class FachadaFornecedor(
         Converters = { new JsonStringEnumConverter(JsonNamingPolicy.SnakeCaseUpper) },
     };
 
-    private static readonly ValidarMotivo RegraDoMotivo = new();
+    private const string SomenteAtivosPodemSerInativados = "Somente fornecedores ativos podem ser inativados.";
+    private const string SomenteInativosPodemSerAtivados = "Somente fornecedores inativos podem ser ativados.";
 
-    private IStrategy<Fornecedor>[] RegrasDeCadastro =>
-        [new ValidarDadosObrigatorios(), new ValidarCamposNumericos(), new ValidarCnpjUnico(fornecedorDao)];
+    private static readonly ValidarMotivo RegraDoMotivo = new();
 
     public Task<Dominios> ConsultarDominios() => dominioDao.Consultar();
 
@@ -32,7 +32,7 @@ public sealed class FachadaFornecedor(
 
     public async Task<Fornecedor> Incluir(Fornecedor fornecedor, string usuario)
     {
-        await Validar(RegrasDeCadastro, fornecedor);
+        await Validar(await RegrasDeCadastro(), fornecedor);
         await conexao.EmTransacao(async () =>
         {
             fornecedor.Codigo = await fornecedorDao.Incluir(fornecedor);
@@ -45,7 +45,7 @@ public sealed class FachadaFornecedor(
     {
         var anterior = await ConsultarPorCodigo(fornecedor.Codigo!);
         fornecedor.Status = anterior.Status;
-        await Validar(RegrasDeCadastro, fornecedor);
+        await Validar(await RegrasDeCadastro(), fornecedor);
         await conexao.EmTransacao(async () =>
         {
             await fornecedorDao.Alterar(fornecedor);
@@ -57,20 +57,32 @@ public sealed class FachadaFornecedor(
     public async Task Inativar(string codigo, Inativacao inativacao)
     {
         var fornecedor = await ConsultarPorCodigo(codigo);
-        ExigirStatus(fornecedor, StatusFornecedor.Ativo, "Somente fornecedores ativos podem ser inativados.");
-        await Validar([RegraDoMotivo], inativacao);
+        ExigirStatus(fornecedor, StatusFornecedor.Ativo, SomenteAtivosPodemSerInativados);
+        await Validar([RegraDoMotivo, await RegraDosDominios()], inativacao);
         await MudarStatus(fornecedor, StatusFornecedor.Inativo, TipoOperacao.Inativacao, inativacao.Usuario,
-            registrarMotivo: () => historicoDao.RegistrarInativacao(codigo, inativacao));
+            SomenteAtivosPodemSerInativados, registrarMotivo: () => historicoDao.RegistrarInativacao(codigo, inativacao));
     }
 
     public async Task Ativar(string codigo, Ativacao ativacao)
     {
         var fornecedor = await ConsultarPorCodigo(codigo);
-        ExigirStatus(fornecedor, StatusFornecedor.Inativo, "Somente fornecedores inativos podem ser ativados.");
-        await Validar([RegraDoMotivo], ativacao);
+        ExigirStatus(fornecedor, StatusFornecedor.Inativo, SomenteInativosPodemSerAtivados);
+        await Validar([RegraDoMotivo, await RegraDosDominios()], ativacao);
         await MudarStatus(fornecedor, StatusFornecedor.Ativo, TipoOperacao.Ativacao, ativacao.Usuario,
-            registrarMotivo: () => historicoDao.RegistrarAtivacao(codigo, ativacao));
+            SomenteInativosPodemSerAtivados, registrarMotivo: () => historicoDao.RegistrarAtivacao(codigo, ativacao));
     }
+
+    private async Task<IStrategy<Fornecedor>[]> RegrasDeCadastro() =>
+    [
+        new ValidarDadosObrigatorios(),
+        new ValidarTamanhos(),
+        new ValidarFormatos(),
+        new ValidarCamposNumericos(),
+        await RegraDosDominios(),
+        new ValidarCnpjUnico(fornecedorDao),
+    ];
+
+    private async Task<ValidarDominios> RegraDosDominios() => new(await dominioDao.Consultar());
 
     private static async Task Validar<T>(IEnumerable<IStrategy<T>> regras, T entidade)
     {
@@ -91,13 +103,16 @@ public sealed class FachadaFornecedor(
     }
 
     private async Task MudarStatus(
-        Fornecedor fornecedor, StatusFornecedor novoStatus, TipoOperacao operacao, string usuario, Func<Task> registrarMotivo)
+        Fornecedor fornecedor, StatusFornecedor novoStatus, TipoOperacao operacao, string usuario,
+        string mensagemSeOStatusMudou, Func<Task> registrarMotivo)
     {
         var dadosAnteriores = ParaJson(fornecedor);
+        var statusAnterior = fornecedor.Status;
         fornecedor.Status = novoStatus;
         await conexao.EmTransacao(async () =>
         {
-            await fornecedorDao.AlterarStatus(fornecedor);
+            if (!await fornecedorDao.AlterarStatus(fornecedor.Codigo!, statusAnterior, novoStatus))
+                throw new RegraDeNegocioException(mensagemSeOStatusMudou);
             await registrarMotivo();
             await RegistrarLog(operacao, fornecedor, dadosAnteriores, usuario);
         });

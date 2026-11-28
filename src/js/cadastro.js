@@ -13,7 +13,7 @@ const IDS_DOS_CAMPOS_NUMERICOS = ["txtDdd", "txtNumeroTelefone", "txtCep"];
 const AVISO_DADOS_MANTIDOS = "Os dados já digitados foram mantidos.";
 
 const parametrosDaUrl = new URLSearchParams(window.location.search);
-const nomeDoModo = parametrosDaUrl.get("modo") ?? "novo";
+const nomeDoModo = Object.hasOwn(MODOS, parametrosDaUrl.get("modo")) ? parametrosDaUrl.get("modo") : "novo";
 const modo = MODOS[nomeDoModo];
 const emInclusao = nomeDoModo === "novo";
 const emVisualizacao = nomeDoModo === "visualizar";
@@ -82,6 +82,7 @@ async function preencherDadosIniciais() {
 
 async function carregarFornecedor() {
   try {
+    if (!codigo) throw new Error("Nenhum fornecedor foi informado.");
     const fornecedor = await api.consultarPorCodigo(codigo);
     preencherFormulario(fornecedor);
     if (emVisualizacao) exibirStatusNoBadge($("statusBadge"), fornecedor.status);

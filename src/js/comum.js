@@ -13,9 +13,14 @@ export const temPermissao = (usuario, permissao) => usuario.permissoes.includes(
 export const somenteDigitos = (texto) => texto.replace(/\D/g, "");
 
 export async function carregarSessao() {
-  const [usuario, dominios] = await Promise.all([api.usuario(), api.dominios()]);
-  exibirUsuario(usuario);
-  return { usuario, dominios };
+  try {
+    const [usuario, dominios] = await Promise.all([api.usuario(), api.dominios()]);
+    exibirUsuario(usuario);
+    return { usuario, dominios };
+  } catch (erro) {
+    notificar(erro.message, "erro");
+    throw erro;
+  }
 }
 
 function exibirUsuario(usuario) {

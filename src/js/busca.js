@@ -31,6 +31,7 @@ const corpoTabela = tabela.tBodies[0];
 const msgNenhumEncontrado = $("msgNenhumEncontrado");
 
 let parametrosDaConsulta = null;
+let ultimaConsulta = 0;
 let resultado = [];
 let selecionado = null;
 
@@ -48,10 +49,18 @@ function prepararTela() {
 }
 
 function restaurarParametros() {
-  const salvos = JSON.parse(sessionStorage.getItem(CHAVE_PARAMETROS_DA_BUSCA));
-  if (!salvos) return;
+  const salvos = lerParametrosGuardados();
   for (const [nome, campo] of Object.entries(campos)) {
-    campo.value = salvos[nome] ?? campo.value;
+    if (typeof salvos[nome] === "string") campo.value = salvos[nome];
+  }
+}
+
+function lerParametrosGuardados() {
+  try {
+    return JSON.parse(sessionStorage.getItem(CHAVE_PARAMETROS_DA_BUSCA)) ?? {};
+  } catch {
+    sessionStorage.removeItem(CHAVE_PARAMETROS_DA_BUSCA);
+    return {};
   }
 }
 
@@ -78,12 +87,16 @@ function buscarPeloFormulario(evento) {
 
 async function buscar() {
   const parametros = lerParametros();
+  const estaConsulta = ++ultimaConsulta;
+  let encontrados;
   try {
-    resultado = await api.consultar(filtroDaConsulta(parametros));
+    encontrados = await api.consultar(filtroDaConsulta(parametros));
   } catch (erro) {
-    notificar(erro.message, "erro");
+    if (estaConsulta === ultimaConsulta) notificar(erro.message, "erro");
     return;
   }
+  if (estaConsulta !== ultimaConsulta) return;
+  resultado = encontrados;
   parametrosDaConsulta = parametros;
   selecionado = null;
   guardarParametros(parametros);

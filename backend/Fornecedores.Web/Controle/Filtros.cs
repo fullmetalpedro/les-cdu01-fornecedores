@@ -1,10 +1,15 @@
 using Fornecedores.Web.Fachada;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
+using Npgsql;
 
 namespace Fornecedores.Web.Controle;
 
-public sealed record RespostaDeErro(IReadOnlyList<string> Mensagens);
+public sealed record RespostaDeErro(IReadOnlyList<string> Mensagens)
+{
+    public static BadRequestObjectResult FormatoInvalido(ActionContext _) =>
+        new(new RespostaDeErro(["Os dados enviados estão em formato inválido."]));
+}
 
 public sealed class ExigePermissaoAttribute(string permissao) : Attribute, IAuthorizationFilter
 {
@@ -29,6 +34,10 @@ public sealed class TratadorDeExcecoes : IExceptionFilter
         {
             RegraDeNegocioException erro => new UnprocessableEntityObjectResult(new RespostaDeErro(erro.Mensagens)),
             FornecedorNaoEncontradoException erro => new NotFoundObjectResult(new RespostaDeErro([erro.Message])),
+            PostgresException { SqlState: PostgresErrorCodes.UniqueViolation, ConstraintName: "uq_fornecedor_cnpj" } =>
+                new UnprocessableEntityObjectResult(new RespostaDeErro(["CNPJ já cadastrado para outro fornecedor."])),
+            PostgresException { SqlState: PostgresErrorCodes.CharacterNotInRepertoire } =>
+                new UnprocessableEntityObjectResult(new RespostaDeErro(["Os dados contêm caracteres inválidos."])),
             _ => null,
         };
         contexto.ExceptionHandled = contexto.Result is not null;
