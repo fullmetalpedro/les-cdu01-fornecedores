@@ -102,14 +102,14 @@ function criarModal(operacao) {
           <i data-lucide="circle-alert" class="icone" aria-hidden="true"></i>
           <span id="modalStatusAlertText"></span>
         </div>
-        <div class="campo" data-field="categoria">
+        <div class="campo">
           <label for="cboCategoria">Categoria de ${operacao.substantivo} <span class="obrigatorio">*</span></label>
           <select id="cboCategoria" name="categoria">
             <option value="">Selecione</option>
           </select>
           <span class="field-error" hidden>Campo obrigatório</span>
         </div>
-        <div class="campo" data-field="justificativa">
+        <div class="campo">
           <label for="txtJustificativa">Justificativa <span class="obrigatorio">*</span></label>
           <textarea id="txtJustificativa" name="justificativa" rows="4" maxlength="255"></textarea>
           <span class="char-counter">Máximo de 255 caracteres</span>
