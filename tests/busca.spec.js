@@ -79,6 +79,7 @@ test.describe("11.1 Busca (P1.1, P1.2)", () => {
   test("permite restaurar os parâmetros ao voltar para a busca", async ({ page }) => {
     await page.locator("#txtRazaoSocial").fill("Horizonte");
     await buscar(page);
+    await expect(linhasDoResultado(page)).toHaveCount(1);
 
     await page.reload();
 
