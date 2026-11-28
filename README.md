@@ -57,13 +57,16 @@ O back-end em ASP.NET Core (`backend/Fornecedores.Web`) serve as telas de `src/`
 | Persistência | DAO | `backend/Fornecedores.Web/Persistencia/` |
 | Domínio | MVC (Model) | `backend/Fornecedores.Dominio/` |
 
-Cada requisição passa pelo controller, que chama a fachada. A fachada aplica as strategies da operação (dados obrigatórios, campos numéricos, CNPJ único e motivo da inativação ou ativação) e, se todas passarem, grava pelos DAOs numa única transação, junto com o log.
+Cada requisição passa pelo controller, que chama a fachada. A fachada aplica as strategies da operação (dados obrigatórios, tamanhos, formatos, campos numéricos, domínios, CNPJ único e motivo da inativação ou ativação) e, se todas passarem, grava pelos DAOs numa única transação, junto com o log.
 
 | Strategy | Regra |
 |---|---|
 | `ValidarDadosObrigatorios` | RN0081, RN0082, E1 |
 | `ValidarCamposNumericos` | DDD, número do telefone e CEP (seção 11.3) |
 | `ValidarCnpjUnico` | RN0083, E2 |
+| `ValidarTamanhos` | RN0081, RN0082 (tamanhos da tabela 11.3) |
+| `ValidarFormatos` | RN0081 (CNPJ e e-mail) |
+| `ValidarDominios` | RNF0013, RN0084, RN0085 |
 | `ValidarMotivo` | RN0084, RN0085, E4 |
 
 ## Como rodar

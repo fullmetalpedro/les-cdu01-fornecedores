@@ -78,12 +78,14 @@ public sealed class FornecedorDao(Conexao conexao)
         await comando.ExecuteNonQueryAsync();
     }
 
-    public async Task AlterarStatus(Fornecedor fornecedor)
+    public async Task<bool> AlterarStatus(string codigo, StatusFornecedor de, StatusFornecedor para)
     {
-        await using var comando = await conexao.CriarComando("UPDATE fornecedor SET status = @status WHERE codigo = @codigo");
-        comando.Parameters.AddWithValue("status", fornecedor.Status.ToString().ToUpperInvariant());
-        comando.Parameters.AddWithValue("codigo", fornecedor.Codigo!);
-        await comando.ExecuteNonQueryAsync();
+        await using var comando = await conexao.CriarComando(
+            "UPDATE fornecedor SET status = @para WHERE codigo = @codigo AND status = @de");
+        comando.Parameters.AddWithValue("codigo", codigo);
+        comando.Parameters.AddWithValue("de", de.ToString().ToUpperInvariant());
+        comando.Parameters.AddWithValue("para", para.ToString().ToUpperInvariant());
+        return await comando.ExecuteNonQueryAsync() == 1;
     }
 
     private static (string Condicao, string Parametro, string? Valor)[] CondicoesDoFiltro(FiltroFornecedor filtro) =>
