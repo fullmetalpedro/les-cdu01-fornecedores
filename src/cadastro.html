@@ -17,7 +17,7 @@
       <strong>E-commerce de Livros</strong>
       <span class="topbar__area">· Administração · Fornecedores</span>
     </div>
-    <div class="topbar__usuario" id="usuarioAutenticado">
+    <div class="topbar__usuario">
       <div class="topbar__usuario-info">
         <span id="lblNomeUsuario" class="topbar__nome"></span>
         <span id="lblPerfilUsuario" class="topbar__perfil"></span>
@@ -50,29 +50,29 @@
           <p class="secao__desc">Identificação da empresa fornecedora (RN0081).</p>
         </div>
         <div class="secao__grade">
-          <div class="campo" data-field="codigo">
+          <div class="campo">
             <label for="txtCodigo">Código</label>
             <div class="campo-bloqueado">
               <input type="text" id="txtCodigo" name="codigo" maxlength="10" readonly placeholder="Gerado automaticamente">
               <i data-lucide="lock" class="icone" aria-hidden="true"></i>
             </div>
           </div>
-          <div class="campo" data-field="razaoSocial">
+          <div class="campo">
             <label for="txtRazaoSocial">Razão Social <span class="obrigatorio">*</span></label>
             <input type="text" id="txtRazaoSocial" name="razaoSocial" maxlength="100">
             <span class="field-error" hidden>Campo obrigatório</span>
           </div>
-          <div class="campo" data-field="nomeFantasia">
+          <div class="campo">
             <label for="txtNomeFantasia">Nome Fantasia <span class="obrigatorio">*</span></label>
             <input type="text" id="txtNomeFantasia" name="nomeFantasia" maxlength="60">
             <span class="field-error" hidden>Campo obrigatório</span>
           </div>
-          <div class="campo" data-field="cnpj">
+          <div class="campo">
             <label for="txtCnpj">CNPJ <span class="obrigatorio">*</span></label>
             <input type="text" id="txtCnpj" name="cnpj" maxlength="18" placeholder="00.000.000/0000-00">
             <span class="field-error" hidden>Campo obrigatório</span>
           </div>
-          <div class="campo campo--larga" data-field="email">
+          <div class="campo campo--larga">
             <label for="txtEmail">E-mail <span class="obrigatorio">*</span></label>
             <input type="email" id="txtEmail" name="email" maxlength="100">
             <span class="field-error" hidden>Campo obrigatório</span>
@@ -86,19 +86,19 @@
           <p class="secao__desc">Composto por tipo, DDD e número (RN0081).</p>
         </div>
         <div class="secao__grade">
-          <div class="campo" data-field="telefone.tipo">
+          <div class="campo">
             <label for="cboTipoTelefone">Tipo de Telefone <span class="obrigatorio">*</span></label>
             <select id="cboTipoTelefone" name="telefone.tipo">
               <option value="">Selecione</option>
             </select>
             <span class="field-error" hidden>Campo obrigatório</span>
           </div>
-          <div class="campo" data-field="telefone.ddd">
+          <div class="campo">
             <label for="txtDdd">DDD <span class="obrigatorio">*</span></label>
             <input type="text" inputmode="numeric" id="txtDdd" name="telefone.ddd" maxlength="2">
             <span class="field-error" hidden>Campo obrigatório</span>
           </div>
-          <div class="campo" data-field="telefone.numero">
+          <div class="campo">
             <label for="txtNumeroTelefone">Número do Telefone <span class="obrigatorio">*</span></label>
             <input type="text" inputmode="numeric" id="txtNumeroTelefone" name="telefone.numero" maxlength="9">
             <span class="field-error" hidden>Campo obrigatório</span>
@@ -112,50 +112,50 @@
           <p class="secao__desc">Todos os campos são obrigatórios, exceto Complemento (RN0082).</p>
         </div>
         <div class="secao__grade">
-          <div class="campo" data-field="endereco.tipoLogradouro">
+          <div class="campo">
             <label for="cboTipoLogradouro">Tipo de Logradouro <span class="obrigatorio">*</span></label>
             <select id="cboTipoLogradouro" name="endereco.tipoLogradouro">
               <option value="">Selecione</option>
             </select>
             <span class="field-error" hidden>Campo obrigatório</span>
           </div>
-          <div class="campo" data-field="endereco.logradouro">
+          <div class="campo">
             <label for="txtLogradouro">Logradouro <span class="obrigatorio">*</span></label>
             <input type="text" id="txtLogradouro" name="endereco.logradouro" maxlength="100">
             <span class="field-error" hidden>Campo obrigatório</span>
           </div>
-          <div class="campo" data-field="endereco.numero">
+          <div class="campo">
             <label for="txtNumero">Número <span class="obrigatorio">*</span></label>
             <input type="text" id="txtNumero" name="endereco.numero" maxlength="10">
             <span class="field-error" hidden>Campo obrigatório</span>
           </div>
-          <div class="campo" data-field="endereco.complemento">
+          <div class="campo">
             <label for="txtComplemento">Complemento</label>
             <input type="text" id="txtComplemento" name="endereco.complemento" maxlength="60">
           </div>
-          <div class="campo" data-field="endereco.bairro">
+          <div class="campo">
             <label for="txtBairro">Bairro <span class="obrigatorio">*</span></label>
             <input type="text" id="txtBairro" name="endereco.bairro" maxlength="60">
             <span class="field-error" hidden>Campo obrigatório</span>
           </div>
-          <div class="campo" data-field="endereco.cep">
+          <div class="campo">
             <label for="txtCep">CEP <span class="obrigatorio">*</span></label>
             <input type="text" inputmode="numeric" id="txtCep" name="endereco.cep" maxlength="8">
             <span class="field-error" hidden>Campo obrigatório</span>
           </div>
-          <div class="campo" data-field="endereco.cidade">
+          <div class="campo">
             <label for="txtCidade">Cidade <span class="obrigatorio">*</span></label>
             <input type="text" id="txtCidade" name="endereco.cidade" maxlength="60">
             <span class="field-error" hidden>Campo obrigatório</span>
           </div>
-          <div class="campo" data-field="endereco.estado">
+          <div class="campo">
             <label for="cboEstado">Estado <span class="obrigatorio">*</span></label>
             <select id="cboEstado" name="endereco.estado">
               <option value="">Selecione</option>
             </select>
             <span class="field-error" hidden>Campo obrigatório</span>
           </div>
-          <div class="campo" data-field="endereco.pais">
+          <div class="campo">
             <label for="cboPais">País <span class="obrigatorio">*</span></label>
             <select id="cboPais" name="endereco.pais">
               <option value="">Selecione</option>
